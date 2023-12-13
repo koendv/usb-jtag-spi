@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : USB×ªJTAGÓ²¼şµ×²ã²Ù×÷Ïà¹ØÍ·ÎÄ¼ş
+* Description        : USBè½¬JTAGç¡¬ä»¶åº•å±‚æ“ä½œç›¸å…³å¤´æ–‡ä»¶
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -18,11 +18,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-/* Í·ÎÄ¼ş°üº¬ */
+/* å¤´æ–‡ä»¶åŒ…å« */
 #include "debug.h"
 
 /******************************************************************************/
-/* Ïà¹Øºê¶¨Òå */
+/* ç›¸å…³å®å®šä¹‰ */
 #define DEF_SHIFT_MODE             ( 0x80 )
 #define DEF_READ_MODE              ( 0x40 )
 #define DEF_CNT_MASK               ( 0x3F )
@@ -35,7 +35,7 @@ extern "C" {
 #define DEF_TCK_BIT_OUT            ( 0x01 )
 #define DEF_TDO_BIT_IN             ( 0 )
 
-/* JTAGÒı½Å²Ù×÷Ïà¹Øºê¶¨Òå */
+/* JTAGå¼•è„šæ“ä½œç›¸å…³å®å®šä¹‰ */
 /* TCK: PB13 */
 #define PIN_TCK_OUT( d )           if( d ) GPIOB->BSHR = GPIO_Pin_13; else GPIOB->BCR = GPIO_Pin_13;
 #define PIN_TCK_0( )               GPIOB->BCR = GPIO_Pin_13
@@ -54,15 +54,15 @@ extern "C" {
 #define PIN_TRST_OUT( d )          if( d ) GPIOC->BSHR = GPIO_Pin_6; else GPIOC->BCR = GPIO_Pin_6;  
 
 /******************************************************************************/
-/* ±äÁ¿ÍâÀ© */
+/* å˜é‡å¤–æ‰© */
 
 /********************************************************************************/
-/* º¯ÊıÍâÀ© */
-extern void JTAG_Port_Init( void );                                             /* JTAG½Ó¿ÚÓ²¼ş³õÊ¼»¯ */
-extern void JTAG_Port_BitShift( UINT8 dat );                                    /* JTAG½Ó¿ÚÎ»Êä³ö */
-extern UINT8 JTAG_Port_BitRead( void );                                         /* JTAG½Ó¿ÚÎ»¶ÁÈ¡ */
-extern void JTAG_Port_DataShift( UINT8 dat );                                   /* JTAG½Ó¿ÚÊı¾İÒÆÎ»Êä³ö */
-extern UINT8 JTAG_Port_DataShift_RD( UINT8 dat );                               /* JTAG½Ó¿ÚÊı¾İÒÆÎ»Êä³ö²¢¶ÁÈ¡ */
+/* å‡½æ•°å¤–æ‰© */
+extern void JTAG_Port_Init( void );                                             /* JTAGæ¥å£ç¡¬ä»¶åˆå§‹åŒ– */
+extern void JTAG_Port_BitShift( UINT8 dat );                                    /* JTAGæ¥å£ä½è¾“å‡º */
+extern UINT8 JTAG_Port_BitRead( void );                                         /* JTAGæ¥å£ä½è¯»å– */
+extern void JTAG_Port_DataShift( UINT8 dat );                                   /* JTAGæ¥å£æ•°æ®ç§»ä½è¾“å‡º */
+extern UINT8 JTAG_Port_DataShift_RD( UINT8 dat );                               /* JTAGæ¥å£æ•°æ®ç§»ä½è¾“å‡ºå¹¶è¯»å– */
 
 #ifdef __cplusplus
 }

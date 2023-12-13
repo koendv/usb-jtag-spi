@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/18
-* Description        : ²ÉÓÃCH32V305\307Ð¾Æ¬ÊµÏÖUSB2.0(480M high speed)×ª¸ßËÙJTAG/SPI¹¦ÄÜ
+* Description        : é‡‡ç”¨CH32V305\307èŠ¯ç‰‡å®žçŽ°USB2.0(480M high speed)è½¬é«˜é€ŸJTAG/SPIåŠŸèƒ½
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -11,12 +11,12 @@
 
 
 /******************************************************************************/
-/* Í·ÎÄ¼þ°üº¬ */
-#include "MAIN.h"                                                               /* Í·ÎÄ¼þ°üº¬ */
+/* å¤´æ–‡ä»¶åŒ…å« */
+#include "MAIN.h"                                                               /* å¤´æ–‡ä»¶åŒ…å« */
 #include "debug.h"
 
 /******************************************************************************/
-/* ³£¡¢±äÁ¿¶¨Òå */
+/* å¸¸ã€å˜é‡å®šä¹‰ */
 #if( DEF_WWDG_FUN_EN == 0x01 )
 UINT8  WWDG_Tr, WWDG_Wr;
 #endif
@@ -31,43 +31,43 @@ int main( void )
 {
     RCC_ClocksTypeDef   RCC_Clocks;
 
-    /*****************************ÏµÍ³Ïà¹Ø³õÊ¼»¯*******************************/
+    /*****************************ç³»ç»Ÿç›¸å…³åˆå§‹åŒ–*******************************/
     Delay_Init( );
     USART_Printf_Init( 921600 );
-    RCC_Configuration( );                                                       /* ÏµÍ³Ê±ÖÓÅäÖÃ */
-    NVIC_Configuration( );                                                      /* ÏµÍ³ÖÐ¶ÏÅäÖÃ */
-    RCC_GetClocksFreq( &RCC_Clocks );                                           /* »ñÈ¡ÏµÍ³Ê±ÖÓÆµÂÊ */
+    RCC_Configuration( );                                                       /* ç³»ç»Ÿæ—¶é’Ÿé…ç½® */
+    NVIC_Configuration( );                                                      /* ç³»ç»Ÿä¸­æ–­é…ç½® */
+    RCC_GetClocksFreq( &RCC_Clocks );                                           /* èŽ·å–ç³»ç»Ÿæ—¶é’Ÿé¢‘çŽ‡ */
 
-    /*****************************Ä£¿éËùÓÐÒý½Å³õÊ¼»¯**************************/
+    /*****************************æ¨¡å—æ‰€æœ‰å¼•è„šåˆå§‹åŒ–**************************/
     DUG_PRINTF("USB_JTAG_SPI_V1.%d\n",(UINT16)DEF_IC_PRG_VER - 0x01 );
     DUG_PRINTF("Edit Date and Time is: "__DATE__"  " __TIME__"\n");
 
-    /*****************************¶¨Ê±Æ÷³õÊ¼»¯************************************/
-    TIM2_Init( );                                                               /* ¶¨Ê±Æ÷2³õÊ¼»¯ */
+    /*****************************å®šæ—¶å™¨åˆå§‹åŒ–************************************/
+    TIM2_Init( );                                                               /* å®šæ—¶å™¨2åˆå§‹åŒ– */
 
-    /* JTAG³õÊ¼»¯ */
+    /* JTAGåˆå§‹åŒ– */
     DUG_PRINTF("JTAG Init\n");
     JTAG_Init( );
     JTAG_SPI_Init( SPI_BaudRatePrescaler_4 );
     DUG_PRINTF("JTAG_Mode:%x\n",JTAG_Mode);
     DUG_PRINTF("JTAG_Speed:%x\n",JTAG_Speed);
 
-    /* SPI½Ó¿Ú³õÊ¼»¯ */
+    /* SPIæŽ¥å£åˆå§‹åŒ– */
     DUG_PRINTF("SPI Init\n");
     SPIx_Cfg_DefInit( );
     SPIx_Tx_DMA_Init( DMA1_Channel5, (u32)&SPI2->DATAR, (u32)&SPI_TxDMA_Buf[ 0 ], 0x00 );
     SPIx_Rx_DMA_Init( DMA1_Channel4, (u32)&SPI2->DATAR, (u32)&SPI_Com_Buf[ 0 ], 0x00 );
 
-    /*****************************USB´Ó»úÏà¹Ø³õÊ¼»¯******************************/
+    /*****************************USBä»Žæœºç›¸å…³åˆå§‹åŒ–******************************/
     DUG_PRINTF("USBHS Init\n");
     USBHS_Device_Init( ENABLE );
     NVIC_EnableIRQ( USBHS_IRQn );
 
-    /*****************************Ö÷³ÌÐò**************************************/
+    /*****************************ä¸»ç¨‹åº**************************************/
     DUG_PRINTF("Main\n");
 
 #if( DEF_WWDG_FUN_EN == 0x01 )
-    /* WWDG¿´ÃÅ¹·³õÊ¼»¯ */
+    /* WWDGçœ‹é—¨ç‹—åˆå§‹åŒ– */
     WWDG_Config( 0x7F, 0x5F, WWDG_Prescaler_8 );
     WWDG_Wr = WWDG->CFGR & 0x7F;
 #endif
@@ -75,7 +75,7 @@ int main( void )
     while( 1 )
     {
         /*************************************************************/
-        /* USB×ªJTAG´¦Àí */
+        /* USBè½¬JTAGå¤„ç† */
         if( JTAG_Mode == 0 )
         {
             COMM_CMDPack_Deal( );
@@ -86,7 +86,7 @@ int main( void )
         }
 
         /*************************************************************/
-        /* ¿´ÃÅ¹·Î¹¹· */
+        /* çœ‹é—¨ç‹—å–‚ç‹— */
 #if( DEF_WWDG_FUN_EN == 0x01 )
         WWDG_Tr = WWDG->CTLR & 0x7F;
         if( WWDG_Tr < WWDG_Wr )

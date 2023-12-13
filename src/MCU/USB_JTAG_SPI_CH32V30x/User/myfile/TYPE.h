@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : ³£ÓÃÀàĞÍºÍ³£Á¿Ô¤¶¨Òå
+* Description        : å¸¸ç”¨ç±»å‹å’Œå¸¸é‡é¢„å®šä¹‰
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -34,7 +34,7 @@ typedef 	unsigned int   	  BOOL1;
 #endif
 
 #ifndef 	UINT8
-typedef 	unsigned char     UINT8;							 /* defined for unsigned 8-bits integer variable  ÎŞ·ûºÅ8Î»ÕûĞÍ±äÁ¿  */
+typedef 	unsigned char     UINT8;							 /* defined for unsigned 8-bits integer variable  æ— ç¬¦å·8ä½æ•´å‹å˜é‡  */
 #endif
 
 #ifndef 	UINT8C
@@ -42,11 +42,11 @@ typedef 	unsigned char     UINT8;							 /* defined for unsigned 8-bits integer 
 #endif
 
 #ifndef 	UINT16
-typedef 	unsigned short    UINT16;						 	 /* defined for unsigned 16-bits integer variable ÎŞ·ûºÅ16Î»ÕûĞÍ±äÁ¿ */
+typedef 	unsigned short    UINT16;						 	 /* defined for unsigned 16-bits integer variable æ— ç¬¦å·16ä½æ•´å‹å˜é‡ */
 #endif
 
 #ifndef 	UINT32
-typedef 	unsigned long     UINT32;							 /* defined for unsigned 32-bits integer variable ÎŞ·ûºÅ32Î»ÕûĞÍ±äÁ¿ */
+typedef 	unsigned long     UINT32;							 /* defined for unsigned 32-bits integer variable æ— ç¬¦å·32ä½æ•´å‹å˜é‡ */
 #endif
 
 #ifndef 	UINT8X

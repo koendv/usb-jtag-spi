@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : USB���ٲ�������ļ�
+* Description        : USB高速操作相关文件
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -11,53 +11,53 @@
 
 
 /******************************************************************************/
-/* ͷ�ļ����� */
+/* 头文件包含 */
 #include "main.h"
 #include "USB_Desc.h"
 #include "JTAG.h"
 
 /******************************************************************************/
-/* ������������ */
+/* 常、变量定义 */
 
-/* �������� */
+/* 函数声明 */
 void USBHS_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
-/* USB���������� */
-__attribute__ ((aligned(16))) UINT8 EP0_Databuf[ USBHS_UEP0_SIZE ]          __attribute__((section(".DMADATA"))); /*�˵�0�����շ�������*/
-__attribute__ ((aligned(16))) UINT8 EP1_Rx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�1���ݽ��ջ����� */
-__attribute__ ((aligned(16))) UINT8 EP1_Tx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�1���ݷ��ͻ����� */
-__attribute__ ((aligned(16))) UINT8 EP2_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�2���ݽ��ջ����� */
-__attribute__ ((aligned(16))) UINT8 EP2_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�2���ݷ��ͻ����� */
-__attribute__ ((aligned(16))) UINT8 EP3_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�3���ݽ��ջ����� */
-__attribute__ ((aligned(16))) UINT8 EP3_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�3���ݷ��ͻ����� */
-__attribute__ ((aligned(16))) UINT8 EP4_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�4���ݽ��ջ����� */
-__attribute__ ((aligned(16))) UINT8 EP4_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�4���ݷ��ͻ����� */
-__attribute__ ((aligned(16))) UINT8 EP6_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�6���ݽ��ջ����� */
-__attribute__ ((aligned(16))) UINT8 EP6_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�6���ݷ��ͻ����� */
-__attribute__ ((aligned(16))) UINT8 EP8_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�8���ݽ��ջ����� */
-__attribute__ ((aligned(16))) UINT8 EP8_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* �˵�86���ݷ��ͻ����� */
+/* USB缓冲区定义 */
+__attribute__ ((aligned(16))) UINT8 EP0_Databuf[ USBHS_UEP0_SIZE ]          __attribute__((section(".DMADATA"))); /*端点0数据收发缓冲区*/
+__attribute__ ((aligned(16))) UINT8 EP1_Rx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点1数据接收缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP1_Tx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点1数据发送缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP2_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点2数据接收缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP2_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点2数据发送缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP3_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点3数据接收缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP3_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点3数据发送缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP4_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点4数据接收缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP4_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点4数据发送缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP6_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点6数据接收缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP6_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点6数据发送缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP8_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点8数据接收缓冲区 */
+__attribute__ ((aligned(16))) UINT8 EP8_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* 端点86数据发送缓冲区 */
 
 
 #define	pSetupReqPak		((PUSB_SETUP_REQ)EP0_Databuf)
 const UINT8 *pDescr;
-volatile UINT8  USBHS_Dev_SetupReqCode = 0xFF;									/* USB2.0�����豸Setup�������� */
-volatile UINT16 USBHS_Dev_SetupReqLen = 0x00;									/* USB2.0�����豸Setup������ */
-volatile UINT8  USBHS_Dev_SetupReqValueH = 0x00;								/* USB2.0�����豸Setup��Value���ֽ� */	
-volatile UINT8  USBHS_Dev_Config = 0x00;										/* USB2.0�����豸����ֵ */
-volatile UINT8  USBHS_Dev_Address = 0x00;										/* USB2.0�����豸��ֵַ */
-volatile UINT8  USBHS_Dev_SleepStatus = 0x00;                                   /* USB2.0�����豸˯��״̬ */
-volatile UINT8  USBHS_Dev_EnumStatus = 0x00;                                    /* USB2.0�����豸ö��״̬ */
-volatile UINT8  USBHS_Dev_Endp0_Tog = 0x01;                                     /* USB2.0�����豸�˵�0ͬ����־ */
-volatile UINT8  USBHS_Dev_Speed = 0x01;                                    		/* USB2.0�����豸�ٶ� */
-volatile UINT16 USBHS_Up_PackLenMax = 512;                                      /* USB2.0�����豸��ǰ�����ϴ��İ��������ֵ(ȫ��64����512) */
+volatile UINT8  USBHS_Dev_SetupReqCode = 0xFF;									/* USB2.0高速设备Setup包命令码 */
+volatile UINT16 USBHS_Dev_SetupReqLen = 0x00;									/* USB2.0高速设备Setup包长度 */
+volatile UINT8  USBHS_Dev_SetupReqValueH = 0x00;								/* USB2.0高速设备Setup包Value高字节 */	
+volatile UINT8  USBHS_Dev_Config = 0x00;										/* USB2.0高速设备配置值 */
+volatile UINT8  USBHS_Dev_Address = 0x00;										/* USB2.0高速设备地址值 */
+volatile UINT8  USBHS_Dev_SleepStatus = 0x00;                                   /* USB2.0高速设备睡眠状态 */
+volatile UINT8  USBHS_Dev_EnumStatus = 0x00;                                    /* USB2.0高速设备枚举状态 */
+volatile UINT8  USBHS_Dev_Endp0_Tog = 0x01;                                     /* USB2.0高速设备端点0同步标志 */
+volatile UINT8  USBHS_Dev_Speed = 0x01;                                    		/* USB2.0高速设备速度 */
+volatile UINT16 USBHS_Up_PackLenMax = 512;                                      /* USB2.0高速设备当前允许上传的包长度最大值(全速64高速512) */
 
-UINT8  USB_Temp_Buf[ 64 ];                                                      /* USB��ʱ������ */
+UINT8  USB_Temp_Buf[ 64 ];                                                      /* USB临时缓冲区 */
 
 volatile UINT8 FLAG_Send = 1;
 
 /*******************************************************************************
 * Function Name  : USBHS_RCC_Init
-* Description    : USB2.0�����豸RCC��ʼ��
+* Description    : USB2.0高速设备RCC初始化
 * Input          : None
 * Output         : None
 * Return         : None
@@ -74,27 +74,27 @@ void USBHS_RCC_Init( void )
 
 /*******************************************************************************
 * Function Name  : USBHS_Device_Endp_Init
-* Description    : USB2.0�����豸�˵��ʼ��
+* Description    : USB2.0高速设备端点初始化
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void USBHS_Device_Endp_Init ( void )
 {
-    /* ʹ�ܶ˵�1���˵�2���ͺͽ���  */
+    /* 使能端点1、端点2发送和接收  */
 	USBHSD->ENDP_CONFIG = USBHS_EP0_T_EN | USBHS_EP0_R_EN | USBHS_EP1_T_EN | USBHS_EP1_R_EN |
 	                      USBHS_EP2_T_EN | USBHS_EP2_R_EN | USBHS_EP3_T_EN | USBHS_EP3_R_EN |
 	                      USBHS_EP4_T_EN | USBHS_EP4_R_EN | USBHS_EP5_T_EN | USBHS_EP5_R_EN |
 	                      USBHS_EP6_T_EN | USBHS_EP6_R_EN | USBHS_EP7_T_EN | USBHS_EP7_R_EN |
 	                      USBHS_EP8_T_EN | USBHS_EP8_R_EN;
 
-    /* �˵��ͬ���˵� */
+    /* 端点非同步端点 */
 	USBHSD->ENDP_TYPE = 0x00;
 
-    /* �˵㻺����ģʽ����˫��������ISO����BUFģʽ��Ҫָ��0  */
+    /* 端点缓冲区模式，非双缓冲区，ISO传输BUF模式需要指定0  */
 	USBHSD->BUF_MODE = 0x00;
 
-    /* �˵���󳤶Ȱ����� */
+    /* 端点最大长度包配置 */
     USBHSD->UEP0_MAX_LEN = 64;
     USBHSD->UEP1_MAX_LEN = 512;
     USBHSD->UEP2_MAX_LEN = 512;
@@ -112,7 +112,7 @@ void USBHS_Device_Endp_Init ( void )
     USBHSD->UEP14_MAX_LEN = 512;
     USBHSD->UEP15_MAX_LEN = 512;
 
-    /* �˵�DMA��ַ���� */
+    /* 端点DMA地址配置 */
     USBHSD->UEP0_DMA   = (UINT32)(UINT8 *)EP0_Databuf;
     USBHSD->UEP1_TX_DMA = (UINT32)(UINT8 *)EP1_Tx_Databuf;
     USBHSD->UEP1_RX_DMA = (UINT32)(UINT8 *)EP1_Rx_Databuf;
@@ -127,7 +127,7 @@ void USBHS_Device_Endp_Init ( void )
     USBHSD->UEP8_TX_DMA = (UINT32)(UINT8 *)EP8_Tx_Databuf;
     USBHSD->UEP8_RX_DMA = (UINT32)(UINT8 *)EP8_Rx_Databuf;
 
-    /* �˵���ƼĴ�������(��ʹ�õĶ˵����ó��ֶ���ת) */
+    /* 端点控制寄存器配置(所使用的端点配置成手动翻转) */
     USBHS_Dev_Endp0_Tog = 0x01;
     USBHSD->UEP0_TX_LEN  = 0;
     USBHSD->UEP0_TX_CTRL = USBHS_EP_T_RES_NAK;
@@ -193,24 +193,24 @@ void USBHS_Device_Endp_Init ( void )
     USBHSD->UEP15_TX_CTRL = USBHS_EP_T_AUTOTOG | USBHS_EP_T_RES_NAK;
     USBHSD->UEP15_RX_CTRL = USBHS_EP_R_AUTOTOG | USBHS_EP_R_RES_ACK;
 
-    /* ��ر�����ʼ�� */
+    /* 相关变量初始化 */
     USBHS_Dev_Speed = 0x01;
     USBHS_Up_PackLenMax = 512;
 }
 
 /*******************************************************************************
 * Function Name  : USBHS_Device_Init
-* Description    : USB2.0�����豸��ʼ��
+* Description    : USB2.0高速设备初始化
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void USBHS_Device_Init ( FunctionalState sta )
 {
-    /* USB2.0�����豸RCC��ʼ�� */
+    /* USB2.0高速设备RCC初始化 */
     USBHS_RCC_Init( );
 
-    /* ����DMA���ٶȡ��˵�ʹ�ܵ� */
+    /* 配置DMA、速度、端点使能等 */
     USBHSD->HOST_CTRL = 0x00;
     USBHSD->HOST_CTRL = USBHS_SUSPENDM;
     USBHSD->CONTROL = 0x00;
@@ -221,11 +221,11 @@ void USBHS_Device_Init ( FunctionalState sta )
     USBHSD->INT_EN = USBHS_SETUP_ACT_EN | USBHS_TRANSFER_EN | USBHS_DETECT_EN | USBHS_SUSPEND_EN;
     USBHSD->ENDP_CONFIG = 0xffffffff;
 
-    /* USB2.0�����豸�˵��ʼ�� */
+    /* USB2.0高速设备端点初始化 */
     USBHS_Device_Endp_Init( );
     Delay_Us( 10 );
     
-    /* ʹ��USB���� */
+    /* 使能USB连接 */
     if( sta == ENABLE )
     {
         USBHSD->CONTROL |= USBHS_DEV_PU_EN;
@@ -239,7 +239,7 @@ void USBHS_Device_Init ( FunctionalState sta )
 
 /*******************************************************************************
 * Function Name  : USBHS_Device_SetAddress
-* Description    : USB2.0�����豸�����豸��ַ
+* Description    : USB2.0高速设备设置设备地址
 * Input          : None
 * Output         : None
 * Return         : None
@@ -252,7 +252,7 @@ void USBHS_Device_SetAddress( UINT32 address )
 
 /*******************************************************************************
 * Function Name  : USBHS_IRQHandler
-* Description    : USB2.0�����豸�жϷ������
+* Description    : USB2.0高速设备中断服务程序
 * Input          : None
 * Output         : None
 * Return         : None
@@ -270,7 +270,7 @@ void USBHS_IRQHandler( void )
     usb_intstatus = USBHSD->INT_FG;
     if( usb_intstatus & USBHS_TRANSFER_FLAG )
     {
-        /* �˵㴫�䴦�� */
+        /* 端点传输处理 */
         end_num  = (USBHSD->INT_ST) & MASK_UIS_ENDP;
         rx_token = ( ( (USBHSD->INT_ST) & MASK_UIS_TOKEN ) >> 4 ) & 0x03;       /* 00: OUT, 01:SOF, 10:IN, 11:SETUP */
 #if 0
@@ -286,16 +286,16 @@ void USBHS_IRQHandler( void )
         {
             if( rx_token == PID_IN ) 
             {
-                /* USB�˵�2�ϴ� */
+                /* USB端点2上传 */
                 USBHSD->UEP2_TX_CTRL ^= USBHS_EP_T_TOG_1;
                 USBHSD->UEP2_TX_CTRL |= USBHS_EP_T_RES_NAK;
             }
             else if( rx_token == PID_OUT ) 
             {
-                /* USB�˵�2�´� */
+                /* USB端点2下传 */
                 USBHSD->UEP2_RX_CTRL ^= USBHS_EP_R_TOG_1;
 
-                /* ��¼�����Ϣ,���л�DMA��ַ */
+                /* 记录相关信息,并切换DMA地址 */
                 COMM.CMDP_PackLen[ COMM.CMDP_LoadNum ] = USBHSD->RX_LEN;
                 COMM.CMDP_LoadNum++;
                 USBHSD->UEP2_RX_DMA = (UINT32)(UINT8 *)&Comm_Tx_Buf[ ( COMM.CMDP_LoadNum * DEF_USB_HS_PACK_LEN ) ];
@@ -306,7 +306,7 @@ void USBHS_IRQHandler( void )
                 }
                 COMM.CMDP_RemainNum++;
 
-                /* �ж��Ƿ���Ҫ��ͣ�´� */
+                /* 判断是否需要暂停下传 */
                 if( COMM.CMDP_RemainNum >= ( DEF_COMM_BUF_PACKNUM_MAX - 2 ) )
                 {
                     USBHSD->UEP2_RX_CTRL &= ~USBHS_EP_R_RES_MASK;
@@ -319,11 +319,11 @@ void USBHS_IRQHandler( void )
         {
             if( rx_token == PID_IN ) 
             {
-                /* USB �˵�1�ϴ� */
+                /* USB 端点1上传 */
                 USBHSD->UEP1_TX_CTRL ^= USBHS_EP_T_TOG_1;
                 USBHSD->UEP1_TX_CTRL |= USBHS_EP_T_RES_NAK;
 
-                /* ����JTAG�����ϴ� */
+                /* 处理JTAG数据上传 */
                 if( COMM.USB_Up_IngFlag )
                 {
                     COMM.USB_Up_IngFlag = 0x00;
@@ -339,7 +339,7 @@ void USBHS_IRQHandler( void )
             }
             else if( rx_token == PID_OUT ) 
             {
-                /* USB �˵�1�´� */
+                /* USB 端点1下传 */
                 USBHSD->UEP1_RX_CTRL ^= USBHS_EP_R_TOG_1;
                 USBHSD->UEP1_RX_CTRL &= ~ USBHS_EP_R_RES_MASK;
                 USBHSD->UEP1_RX_CTRL |= USBHS_EP_R_RES_ACK;
@@ -347,10 +347,10 @@ void USBHS_IRQHandler( void )
         }
         else if( end_num == 0 )
         {
-        	/* �˵�0���� */
+        	/* 端点0处理 */
             if( rx_token == PID_IN ) 
             {
-				/* �˵�0�ϴ��ɹ��ж� */
+				/* 端点0上传成功中断 */
 				switch( USBHS_Dev_SetupReqCode )
 				{
 					case USB_GET_DESCRIPTOR:
@@ -372,7 +372,7 @@ void USBHS_IRQHandler( void )
 						break;
 
 					default:
-						/* ״̬�׶�����жϻ�����ǿ���ϴ�0�������ݰ��������ƴ��� */
+						/* 状态阶段完成中断或者是强制上传0长度数据包结束控制传输 */
 					    USBHSD->UEP0_RX_CTRL = USBHS_EP_R_RES_ACK | USBHS_EP_R_TOG_1;
 	                    pDescr = NULL;
 						break;
@@ -388,7 +388,7 @@ void USBHS_IRQHandler( void )
     }
     else if( usb_intstatus & USBHS_SETUP_FLAG )
     {
-        /* SETUP������ */
+        /* SETUP包处理 */
         USBHSD->UEP0_TX_CTRL = USBHS_EP_T_RES_NAK | USBHS_EP_T_TOG_1;
         if( USBHSD->UEP0_RX_CTRL == USBHS_EP_R_RES_STALL )
         {
@@ -401,20 +401,20 @@ void USBHS_IRQHandler( void )
         len = 0x00;
         errflag = 0x00;
 
-        /* �жϵ�ǰ�Ǳ�׼�������������� */
+        /* 判断当前是标准请求还是其他请求 */
         if( ( pSetupReqPak->bRequestType & USB_REQ_TYP_MASK ) != USB_REQ_TYP_STANDARD )
         {
-            /* ��������,��������,��������� */
-            if( pSetupReqPak->bRequestType & 0x40 )                 /* �������� */
+            /* 其它请求,如类请求,产商请求等 */
+            if( pSetupReqPak->bRequestType & 0x40 )                 /* 厂商请求 */
             {
 
             }
-            else if( pSetupReqPak->bRequestType & 0x20 )            /* ������ */
+            else if( pSetupReqPak->bRequestType & 0x20 )            /* 类请求 */
             {
 
             }
 
-            /* �ж��Ƿ������������ */
+            /* 判断是否可以正常处理 */
             if( errflag != 0xFF )
             {
                 if( USBHS_Dev_SetupReqLen > len )
@@ -428,7 +428,7 @@ void USBHS_IRQHandler( void )
         }
         else
         {
-            /* ������׼USB����� */
+            /* 处理标准USB请求包 */
             switch( USBHS_Dev_SetupReqCode )
             {
                 case USB_GET_DESCRIPTOR:
@@ -436,66 +436,66 @@ void USBHS_IRQHandler( void )
                     switch( ( ( pSetupReqPak->wValue ) >> 8 ) )
                     {
                         case USB_DESCR_TYP_DEVICE:
-                            /* ��ȡ�豸������ */
+                            /* 获取设备描述符 */
                             pDescr = MyDevDescr;
                             len = MyDevDescr[ 0 ];
                             break;
 
                         case USB_DESCR_TYP_CONFIG:
 
-                            /* �ж�USB�ٶȣ�00��ȫ��; 01������; 10:���� */
+                            /* 判断USB速度：00：全速; 01：高速; 10:低速 */
                             if( ( USBHSD->SPEED_TYPE & 0x03 ) == 0x01 )
                             {
-                                /* ����ģʽ */
+                                /* 高速模式 */
                                 USBHS_Dev_Speed = 0x01;
                                 USBHS_Up_PackLenMax = DEF_USB_HS_PACK_LEN;
                             }
                             else
                             {
-                                /* ȫ��ģʽ */
+                                /* 全速模式 */
                                 USBHS_Dev_Speed = 0x00;
                                 USBHS_Up_PackLenMax = DEF_USB_FS_PACK_LEN;
                             }
 
-                            /* ��ȡ���������� */
+                            /* 获取配置描述符 */
                             if( USBHS_Dev_Speed == 0x01 )
                             {
-                                /* ����ģʽ */
+                                /* 高速模式 */
                                 pDescr = MyCfgDescr_HS;
                                 len = MyCfgDescr_HS[ 2 ] | ( (UINT16)MyCfgDescr_HS[ 3 ] << 8 );
                             }
                             else
                             {
-                                /* ȫ��ģʽ */
+                                /* 全速模式 */
                                 pDescr = MyCfgDescr_FS;
                                 len = MyCfgDescr_FS[ 2 ] | ( (UINT16)MyCfgDescr_FS[ 3 ] << 8 );
                             }
                             break;
 
                         case USB_DESCR_TYP_STRING:
-                            /* ��ȡ�ַ��������� */
+                            /* 获取字符串描述符 */
                             switch( ( pSetupReqPak->wValue ) & 0xff )
                             {
                                 case 0:
-                                    /* �����ַ��������� */
+                                    /* 语言字符串描述符 */
                                     pDescr = MyLangDescr;
                                     len = MyLangDescr[ 0 ];
                                     break;
 
                                 case 1:
-                                    /* USB�����ַ��������� */
+                                    /* USB产商字符串描述符 */
                                     pDescr = MyManuInfo;
                                     len = sizeof( MyManuInfo );
                                     break;
 
                                 case 2:
-                                    /* USB��Ʒ�ַ��������� */
+                                    /* USB产品字符串描述符 */
                                     pDescr = MyProdInfo;
                                     len = sizeof( MyProdInfo );
                                     break;
 
                                 case 3:
-                                    /* USB���к��ַ��������� */
+                                    /* USB序列号字符串描述符 */
                                     pDescr = MySerNumInfo;
                                     len = sizeof( MySerNumInfo );
                                     break;
@@ -507,23 +507,23 @@ void USBHS_IRQHandler( void )
                             break;
 
                         case 6:
-                            /* �豸�޶������� */
+                            /* 设备限定描述符 */
                             pDescr = ( PUINT8 )&MyUSBQUADesc[ 0 ];
                             len = sizeof( MyUSBQUADesc );
                             break;
 
                         case 7:
-                            /* �����ٶ����������� */
+                            /* 其他速度配置描述符 */
                             if( USBHS_Dev_Speed == 0x01 )
                             {
-                                /* ����ģʽ */
+                                /* 高速模式 */
                                 memcpy( &TAB_USB_HS_OSC_DESC[ 2 ], &MyCfgDescr_FS[ 2 ], sizeof( MyCfgDescr_FS ) - 2 );
                                 pDescr = ( PUINT8 )&TAB_USB_HS_OSC_DESC[ 0 ];
                                 len = sizeof( TAB_USB_HS_OSC_DESC );
                             }
                             else if( USBHS_Dev_Speed == 0x00 )
                             {
-                                /* ȫ��ģʽ */
+                                /* 全速模式 */
                                 memcpy( &TAB_USB_FS_OSC_DESC[ 2 ], &MyCfgDescr_HS[ 2 ], sizeof( MyCfgDescr_HS ) - 2 );
                                 pDescr = ( PUINT8 )&TAB_USB_FS_OSC_DESC[ 0 ];
                                 len = sizeof( TAB_USB_FS_OSC_DESC );
@@ -539,7 +539,7 @@ void USBHS_IRQHandler( void )
                             break;
                     }
 
-                    /* �ж��Ƿ������������ */
+                    /* 判断是否可以正常处理 */
                     if( errflag != 0xFF )
                     {
                         if( USBHS_Dev_SetupReqLen > len )
@@ -554,12 +554,12 @@ void USBHS_IRQHandler( void )
                 break;
 
                 case USB_SET_ADDRESS:
-                    /* ���õ�ַ */
+                    /* 设置地址 */
                     USBHS_Dev_Address = ( pSetupReqPak->wValue )& 0xff;
                     break;
 
                 case USB_GET_CONFIGURATION:
-                    /* ��ȡ����ֵ */
+                    /* 获取配置值 */
                     EP0_Databuf[ 0 ] = USBHS_Dev_Config;
                     if( USBHS_Dev_SetupReqLen > 1 )
                     {
@@ -568,16 +568,16 @@ void USBHS_IRQHandler( void )
                     break;
 
                 case USB_SET_CONFIGURATION:
-                    /* ��������ֵ */
+                    /* 设置配置值 */
                     USBHS_Dev_Config = ( pSetupReqPak->wValue ) & 0xff;
                     USBHS_Dev_EnumStatus = 0x01;
                     break;
 
                 case USB_CLEAR_FEATURE:
-                    /* ������� */
+                    /* 清除特性 */
                     if( ( pSetupReqPak->bRequestType & USB_REQ_RECIP_MASK ) == USB_REQ_RECIP_ENDP )
                     {
-                        /* ����˵� */
+                        /* 清除端点 */
                         switch( ( pSetupReqPak->wIndex ) & 0xff )
                         {
                             case 0x88:
@@ -687,15 +687,15 @@ void USBHS_IRQHandler( void )
                     break;
 
                 case USB_SET_FEATURE:
-                    /* �������� */
+                    /* 设置特性 */
                     if( ( pSetupReqPak->bRequestType & 0x1F ) == 0x00 )
                     {
-                        /* �����豸 */
+                        /* 设置设备 */
                         if( pSetupReqPak->wValue == 0x01 )
                         {
                             if( MyCfgDescr_HS[ 7 ] & 0x20 )
                             {
-                                /* ���û���ʹ�ܱ�־ */
+                                /* 设置唤醒使能标志 */
                                 USBHS_Dev_SleepStatus = 0x01;
                             }
                             else
@@ -710,89 +710,89 @@ void USBHS_IRQHandler( void )
                     }
                     else if( ( pSetupReqPak->bRequestType & 0x1F ) == 0x02 )
                     {
-                        /* ���ö˵� */
+                        /* 设置端点 */
                         if( pSetupReqPak->wValue == 0x00 )
                         {
-                            /* ����ָ���˵�STALL */
+                            /* 设置指定端点STALL */
                             switch( ( pSetupReqPak->wIndex ) & 0xff )
                             {
                                 case 0x88:
-                                    /* ���ö˵�8 IN STALL */
+                                    /* 设置端点8 IN STALL */
                                     USBHSD->UEP8_TX_CTRL = ( USBHSD->UEP8_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x08:
-                                    /* ���ö˵�1 OUT STALL */
+                                    /* 设置端点1 OUT STALL */
                                     USBHSD->UEP8_RX_CTRL = ( USBHSD->UEP8_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
                                 case 0x87:
-                                    /* ���ö˵�7 IN STALL */
+                                    /* 设置端点7 IN STALL */
                                     USBHSD->UEP7_TX_CTRL = ( USBHSD->UEP7_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x07:
-                                    /* ���ö˵�7 OUT STALL */
+                                    /* 设置端点7 OUT STALL */
                                     USBHSD->UEP7_RX_CTRL = ( USBHSD->UEP7_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
                                 case 0x86:
-                                    /* ���ö˵�6 IN STALL */
+                                    /* 设置端点6 IN STALL */
                                     USBHSD->UEP6_TX_CTRL = ( USBHSD->UEP6_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x06:
-                                    /* ���ö˵�6 OUT STALL */
+                                    /* 设置端点6 OUT STALL */
                                     USBHSD->UEP6_RX_CTRL = ( USBHSD->UEP6_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
                                 case 0x85:
-                                    /* ���ö˵�5 IN STALL */
+                                    /* 设置端点5 IN STALL */
                                     USBHSD->UEP5_TX_CTRL = ( USBHSD->UEP5_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x05:
-                                    /* ���ö˵�5 OUT STALL */
+                                    /* 设置端点5 OUT STALL */
                                     USBHSD->UEP5_RX_CTRL = ( USBHSD->UEP5_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
                                 case 0x84:
-                                    /* ���ö˵�4 IN STALL */
+                                    /* 设置端点4 IN STALL */
                                     USBHSD->UEP4_TX_CTRL = ( USBHSD->UEP4_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x04:
-                                    /* ���ö˵�4 OUT STALL */
+                                    /* 设置端点4 OUT STALL */
                                     USBHSD->UEP4_RX_CTRL = ( USBHSD->UEP4_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
                                 case 0x83:
-                                    /* ���ö˵�3 IN STALL */
+                                    /* 设置端点3 IN STALL */
                                     USBHSD->UEP3_TX_CTRL = ( USBHSD->UEP3_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x03:
-                                    /* ���ö˵�3 OUT STALL */
+                                    /* 设置端点3 OUT STALL */
                                     USBHSD->UEP3_RX_CTRL = ( USBHSD->UEP3_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
                                 case 0x82:
-                                    /* ���ö˵�2 IN STALL */
+                                    /* 设置端点2 IN STALL */
                                     USBHSD->UEP2_TX_CTRL = ( USBHSD->UEP2_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x02:
-                                    /* ���ö˵�2 OUT STALL */
+                                    /* 设置端点2 OUT STALL */
                                     USBHSD->UEP2_RX_CTRL = ( USBHSD->UEP2_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
                                 case 0x81:
-                                    /* ���ö˵�1 IN STALL */
+                                    /* 设置端点1 IN STALL */
                                     USBHSD->UEP1_TX_CTRL = ( USBHSD->UEP1_TX_CTRL & ~USBHS_EP_T_RES_MASK ) | USBHS_EP_T_RES_STALL;
                                     break;
 
                                 case 0x01:
-                                    /* ���ö˵�1 OUT STALL */
+                                    /* 设置端点1 OUT STALL */
                                     USBHSD->UEP1_RX_CTRL = ( USBHSD->UEP1_RX_CTRL & ~USBHS_EP_R_RES_MASK ) | USBHS_EP_R_RES_STALL;
                                     break;
 
@@ -829,7 +829,7 @@ void USBHS_IRQHandler( void )
                     break;
 
                 case USB_GET_STATUS:
-                    /* ���ݵ�ǰ�˵�ʵ��״̬����Ӧ�� */
+                    /* 根据当前端点实际状态进行应答 */
                     EP0_Databuf[ 0 ] = 0x00;
                     EP0_Databuf[ 1 ] = 0x00;
                     if( pSetupReqPak->wIndex == 0x81 )
@@ -956,7 +956,7 @@ void USBHS_IRQHandler( void )
             }
         }
 
-        /* �˵�0���� */
+        /* 端点0处理 */
         if( errflag == 0xFF )
         {
             /* IN - STALL / OUT - DATA - STALL */
@@ -986,23 +986,23 @@ void USBHS_IRQHandler( void )
     }
     else if( usb_intstatus & USBHS_DETECT_FLAG )
     {
-		/* USB���߸�λ�ж� */  
+		/* USB总线复位中断 */  
 		DUG_PRINTF("USB Reset\n");   	
 		USBHS_Dev_Address = 0x00;
-        USBHS_Device_SetAddress( USBHS_Dev_Address );							/* USB2.0�����豸�����豸��ַ */
-        USBHS_Device_Endp_Init( );                                              /* USB2.0�����豸�˵��ʼ�� */
+        USBHS_Device_SetAddress( USBHS_Dev_Address );							/* USB2.0高速设备设置设备地址 */
+        USBHS_Device_Endp_Init( );                                              /* USB2.0高速设备端点初始化 */
 
-		/* ��USB���߸�λ */
+		/* 清USB总线复位 */
 		USBHSD->INT_FG = USBHS_DETECT_FLAG;
     }
     else if( usb_intstatus & USBHS_SUSPEND_FLAG )
     {
-    	/* USB���߹���/��������ж� */
-        USBHSD->INT_FG = USBHS_SUSPEND_FLAG;                                    /* Ϊ��USB���Ի���,���������ж� */
+    	/* USB总线挂起/唤醒完成中断 */
+        USBHSD->INT_FG = USBHS_SUSPEND_FLAG;                                    /* 为了USB可以唤醒,必须先清中断 */
 
         if( USBHSD->MIS_ST & ( 1 << 2 ) )
 		{
-			/* ���� */
+			/* 挂起 */
 //			DUG_PRINTF("USB SUSPEND1!!!\n");
 			USBHS_Dev_SleepStatus |= 0x02;
 //			if( USBHS_Dev_SleepStatus != 0x03 )
@@ -1011,17 +1011,17 @@ void USBHS_IRQHandler( void )
 //			}
 
 #if( DEF_USBSLEEP_FUN_EN == 0x01 )
-			/* USB���ӽӿ�˯�߻�������  */
+			/* USB主从接口睡眠唤醒配置  */
 			USBHS_Sleep_WakeUp_Cfg( );
 
-			/* ͣ��ģʽ,˯�ߺ�,ʱ��Դ��ΪHSI,��Ҫ��������USBʱ�Ӳ���Ч */
-			SystemInit( );  													/* HSI��PLLԴ */
+			/* 停机模式,睡眠后,时钟源变为HSI,需要从新配置USB时钟才生效 */
+			SystemInit( );  													/* HSI作PLL源 */
 
-		    /* USB2.0�����豸RCC��ʼ�� */
+		    /* USB2.0高速设备RCC初始化 */
 			Delay_Us( 200 );
 		    USBHS_RCC_Init( );
 
-			/* �򿪸�������ʱ��  */
+			/* 打开各个外设时钟  */
 		    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2, ENABLE );
 		    RCC_APB1PeriphClockCmd( RCC_APB1Periph_WWDG, ENABLE );
 		    RCC_APB1PeriphClockCmd( RCC_APB2Periph_USART1, ENABLE );
@@ -1029,13 +1029,13 @@ void USBHS_IRQHandler( void )
 		    RCC_APB1PeriphClockCmd( RCC_APB1Periph_SPI2, ENABLE );
 		    Delay_mS( 1 );
 
-		    /* ���³�ʼ����ʱ�� */
+		    /* 重新初始化定时器 */
 			TIM2_Init( );
 #endif
 		}
 		else
 		{
-			/* ���� */
+			/* 唤醒 */
  			DUG_PRINTF("USB SUSPEND2!!!\n");
 		    USBHS_Dev_SleepStatus &= ~0x02;
 			USBHS_Dev_EnumStatus = 0x01;
@@ -1051,7 +1051,7 @@ void USBHS_IRQHandler( void )
 
 /*******************************************************************************
 * Function Name  : USBHS_Sleep_WakeUp_Cfg
-* Description    : USB2.0���ӽӿ�˯�߻�������
+* Description    : USB2.0主从接口睡眠唤醒配置
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1060,36 +1060,36 @@ void USBHS_Sleep_WakeUp_Cfg( void )
 {
     EXTI_InitTypeDef EXTI_InitStructure = {0};
 
-    /* �ر��ж� */
+    /* 关闭中断 */
     __disable_irq( );
 
-    RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR, ENABLE );                       /* ������Դʱ�� */
-    RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE );                     /* ʹ��PA�˿�ʱ�� */
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR, ENABLE );                       /* 开启电源时钟 */
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE );                     /* 使能PA端口时钟 */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
 
-    /* �رո�������ʱ��  */
+    /* 关闭各个外设时钟  */
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2, DISABLE );
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_WWDG, DISABLE );
     RCC_APB1PeriphClockCmd( RCC_APB2Periph_USART1, DISABLE );
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_USART3, DISABLE );
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_SPI2, DISABLE );
 
-    /* ����USB˯�߻��� */
-    EXTI_InitStructure.EXTI_Line = EXTI_Line20;                                 /* �¼���ѡ�� */
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;                             /* �¼����� */
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;                      /* �����ش��� */
-//  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;                     /* �½��ش��� */
-//  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;              /* ���ش���(�����ػ��½���) */
+    /* 配置USB睡眠唤醒 */
+    EXTI_InitStructure.EXTI_Line = EXTI_Line20;                                 /* 事件线选择 */
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;                             /* 事件请求 */
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;                      /* 上升沿触发 */
+//  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;                     /* 下降沿触发 */
+//  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;              /* 边沿触发(上升沿或下降沿) */
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init( &EXTI_InitStructure );
 
-    /* ����˯��ģʽ */
+    /* 进入睡眠模式 */
     USBHSH->HOST_CTRL &= ~PHY_SUSPENDM;
     Delay_Us( 10 );
     PWR_EnterSTOPMode( PWR_Regulator_LowPower, PWR_STOPEntry_WFE );
     Delay_Us( 200 );
 
-    /* ���ж� */
+    /* 打开中断 */
     __enable_irq( );
 }
 

@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : USB2.0¸ßËÙÉè±¸²Ù×÷Ïà¹ØÍ·ÎÄ¼ş
+* Description        : USB2.0é«˜é€Ÿè®¾å¤‡æ“ä½œç›¸å…³å¤´æ–‡ä»¶
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -403,7 +403,7 @@ typedef struct __PACKED _UDISK_BOC_CSW {/* status of BulkOnly USB-FlashDisk */
 #define USBHS_MAX_PACK_SIZE 512
 #endif
 /******************************************************************************/
-/* USBÉè±¸ÅäÖÃÏà¹Øºê¶¨Òå */
+/* USBè®¾å¤‡é…ç½®ç›¸å…³å®å®šä¹‰ */
 // USB CONTROL
 #define USBHS_DMA_EN        (1<<0)
 #define USBHS_ALL_CLR       (1<<1)
@@ -530,7 +530,7 @@ typedef struct __PACKED _UDISK_BOC_CSW {/* status of BulkOnly USB-FlashDisk */
 #define USBHS_EP15_R_EN         (1<<31)
 
 //UEP_TYPE
-//´«ÊäÀàĞÍ£¬0±íÊ¾·ÇÍ¬²½´«Êä£¬1±íÊ¾Í¬²½´«Êä
+//ä¼ è¾“ç±»å‹ï¼Œ0è¡¨ç¤ºéåŒæ­¥ä¼ è¾“ï¼Œ1è¡¨ç¤ºåŒæ­¥ä¼ è¾“
 #define USBHS_EP0_T_TYP        (1<<0)
 #define USBHS_EP0_R_TYP        (1<<16)
 
@@ -628,12 +628,12 @@ typedef struct __PACKED _UDISK_BOC_CSW {/* status of BulkOnly USB-FlashDisk */
 
 #define USBHS_EP15_BUF_MOD     (1<<15)
 #define USBHS_EP15_ISO_BUF_MOD (1<<31)
-//USBHS_EPn_T_EN  USBHS_EPn_R_EN  USBHS_EPn_BUF_MOD  ÃèÊö£ºÒÔUEPn_DMAÎªÆğÊ¼µØÖ·ÓÉµÍÏò¸ßÅÅÁĞ
-//      0               0               x            ¶Ëµã±»½ûÓÃ£¬Î´ÓÃµ½UEPn_*_DMA»º³åÇø¡£
-//      1               0               0            ½ÓÊÕ£¨OUT£©»º³åÇøÊ×µØÖ·ÎªUEPn_RX_DMA
-//      1               0               1            bUEPn_RX_TOG[0]=0,Ê¹ÓÃ»º³åÇøUEPn_RX_DMA£¬bUEPn_RX_TOG[0]=1,Ê¹ÓÃ»º³åÇøUEPn_TX_DMA
-//      0               1               0            ·¢ËÍ(IN)»º³åÇøÊ×µØÖ·ÎªUEPn_TX_DMA¡£
-//      0               1               1            bUEPn_TX_TOG[0]=0,Ê¹ÓÃ»º³åÇøUEPn_TX_DMA£¬bUEPn_TX_TOG[0]=1,Ê¹ÓÃ»º³åÇøUEPn_RX_DMA
+//USBHS_EPn_T_EN  USBHS_EPn_R_EN  USBHS_EPn_BUF_MOD  æè¿°ï¼šä»¥UEPn_DMAä¸ºèµ·å§‹åœ°å€ç”±ä½å‘é«˜æ’åˆ—
+//      0               0               x            ç«¯ç‚¹è¢«ç¦ç”¨ï¼Œæœªç”¨åˆ°UEPn_*_DMAç¼“å†²åŒºã€‚
+//      1               0               0            æ¥æ”¶ï¼ˆOUTï¼‰ç¼“å†²åŒºé¦–åœ°å€ä¸ºUEPn_RX_DMA
+//      1               0               1            bUEPn_RX_TOG[0]=0,ä½¿ç”¨ç¼“å†²åŒºUEPn_RX_DMAï¼ŒbUEPn_RX_TOG[0]=1,ä½¿ç”¨ç¼“å†²åŒºUEPn_TX_DMA
+//      0               1               0            å‘é€(IN)ç¼“å†²åŒºé¦–åœ°å€ä¸ºUEPn_TX_DMAã€‚
+//      0               1               1            bUEPn_TX_TOG[0]=0,ä½¿ç”¨ç¼“å†²åŒºUEPn_TX_DMAï¼ŒbUEPn_TX_TOG[0]=1,ä½¿ç”¨ç¼“å†²åŒºUEPn_RX_DMA
 
 // UEPn_T_LEN
 #define USBHS_EP_T_LEN_MASK       (0x7FF)
@@ -708,7 +708,7 @@ typedef struct __PACKED _UDISK_BOC_CSW {/* status of BulkOnly USB-FlashDisk */
 #define PHY_SUSPENDM            (1<<4)
 
 /******************************************************************************/
-/* HIDÀàÇëÇó */
+/* HIDç±»è¯·æ±‚ */
 #define DEF_USB_GET_IDLE           0x02                                         /* get idle for key or mouse */
 #define DEF_USB_GET_PROTOCOL       0x03                                         /* get protocol for bios type */
 #define DEF_USB_SET_REPORT         0x09                                         /* set report for key */
@@ -717,27 +717,27 @@ typedef struct __PACKED _UDISK_BOC_CSW {/* status of BulkOnly USB-FlashDisk */
 #define DEF_USB_SET_PROTOCOL       0x0B                                         /* set protocol for bios type */
 
 /******************************************************************************/
-/* ¶Ëµã´óĞ¡Ïà¹Øºê¶¨Òå */
-#define DEF_USB_EP0_SIZE           64                                           /* ¶Ëµã0´óĞ¡ */
-#define DEF_USB_EP1_FS_SIZE        64                                           /* ¶Ëµã1´óĞ¡ */
-#define DEF_USB_EP1_HS_SIZE        512                                          /* ¶Ëµã1´óĞ¡ */
-#define DEF_USB_EP2_FS_SIZE        64                                           /* ¶Ëµã2È«ËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP2_HS_SIZE        512                                          /* ¶Ëµã2¸ßËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP3_FS_SIZE        64                                           /* ¶Ëµã3È«ËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP3_HS_SIZE        512                                          /* ¶Ëµã3¸ßËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP4_FS_SIZE        64                                           /* ¶Ëµã4È«ËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP4_HS_SIZE        512                                          /* ¶Ëµã4¸ßËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP5_FS_SIZE        64                                           /* ¶Ëµã5È«ËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP5_HS_SIZE        512                                          /* ¶Ëµã5¸ßËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP6_FS_SIZE        64                                           /* ¶Ëµã6È«ËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP6_HS_SIZE        512                                          /* ¶Ëµã6¸ßËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP7_FS_SIZE        64                                           /* ¶Ëµã7È«ËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP7_HS_SIZE        512                                          /* ¶Ëµã7¸ßËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP8_FS_SIZE        64                                           /* ¶Ëµã8È«ËÙÄ£Ê½´óĞ¡ */
-#define DEF_USB_EP8_HS_SIZE        512                                          /* ¶Ëµã8¸ßËÙÄ£Ê½´óĞ¡ */
+/* ç«¯ç‚¹å¤§å°ç›¸å…³å®å®šä¹‰ */
+#define DEF_USB_EP0_SIZE           64                                           /* ç«¯ç‚¹0å¤§å° */
+#define DEF_USB_EP1_FS_SIZE        64                                           /* ç«¯ç‚¹1å¤§å° */
+#define DEF_USB_EP1_HS_SIZE        512                                          /* ç«¯ç‚¹1å¤§å° */
+#define DEF_USB_EP2_FS_SIZE        64                                           /* ç«¯ç‚¹2å…¨é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP2_HS_SIZE        512                                          /* ç«¯ç‚¹2é«˜é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP3_FS_SIZE        64                                           /* ç«¯ç‚¹3å…¨é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP3_HS_SIZE        512                                          /* ç«¯ç‚¹3é«˜é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP4_FS_SIZE        64                                           /* ç«¯ç‚¹4å…¨é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP4_HS_SIZE        512                                          /* ç«¯ç‚¹4é«˜é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP5_FS_SIZE        64                                           /* ç«¯ç‚¹5å…¨é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP5_HS_SIZE        512                                          /* ç«¯ç‚¹5é«˜é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP6_FS_SIZE        64                                           /* ç«¯ç‚¹6å…¨é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP6_HS_SIZE        512                                          /* ç«¯ç‚¹6é«˜é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP7_FS_SIZE        64                                           /* ç«¯ç‚¹7å…¨é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP7_HS_SIZE        512                                          /* ç«¯ç‚¹7é«˜é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP8_FS_SIZE        64                                           /* ç«¯ç‚¹8å…¨é€Ÿæ¨¡å¼å¤§å° */
+#define DEF_USB_EP8_HS_SIZE        512                                          /* ç«¯ç‚¹8é«˜é€Ÿæ¨¡å¼å¤§å° */
 
 /******************************************************************************/
-/* CDCÀàÃüÁî¶¨Òå */
+/* CDCç±»å‘½ä»¤å®šä¹‰ */
 #define DEF_GET_LINE_CODING           0X21                                      /* This request allows the host to find out the currently configured line coding */
 #define DEF_SET_LINE_CODING           0x20                                      /* Configures DTE rate, stop-bits, parity, and number-of-character */
 #define DEF_SET_LINE_CTLSTE           0X22                                      /* This request generates RS-232/V.24 style control signals */
@@ -770,48 +770,48 @@ typedef struct __PACKED _UDISK_BOC_CSW {/* status of BulkOnly USB-FlashDisk */
 
 
 //extern volatile UINT8  FLAG_Recv_End;
-extern volatile UINT8  FLAG_Send;                                               /* USB·¢ËÍ±êÖ¾Î»  */
+extern volatile UINT8  FLAG_Send;                                               /* USBå‘é€æ ‡å¿—ä½  */
 
 
 /******************************************************************************/
-/* ±äÁ¿ÍâÀ© */
-extern __attribute__ ((aligned(16))) UINT8 EP0_Databuf[ USBHS_UEP0_SIZE ]; 		  /*¶Ëµã0Êı¾İÊÕ·¢»º³åÇø*/
-extern __attribute__ ((aligned(16))) UINT8 EP0_Databuf[ USBHS_UEP0_SIZE ]          __attribute__((section(".DMADATA"))); /*¶Ëµã0Êı¾İÊÕ·¢»º³åÇø*/
-extern __attribute__ ((aligned(16))) UINT8 EP1_Rx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã1Êı¾İ½ÓÊÕ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP1_Tx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã1Êı¾İ·¢ËÍ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP2_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã2Êı¾İ½ÓÊÕ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP2_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã2Êı¾İ·¢ËÍ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP3_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã3Êı¾İ½ÓÊÕ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP3_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã3Êı¾İ·¢ËÍ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP4_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã4Êı¾İ½ÓÊÕ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP4_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã4Êı¾İ·¢ËÍ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP5_Tx_Databuf[ DEF_USB_EP5_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã5Êı¾İ·¢ËÍ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP6_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã6Êı¾İ½ÓÊÕ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP6_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã6Êı¾İ·¢ËÍ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP7_Tx_Databuf[ DEF_USB_EP7_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã7Êı¾İ·¢ËÍ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP8_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã8Êı¾İ½ÓÊÕ»º³åÇø */
-extern __attribute__ ((aligned(16))) UINT8 EP8_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ¶Ëµã8Êı¾İ·¢ËÍ»º³åÇø */
+/* å˜é‡å¤–æ‰© */
+extern __attribute__ ((aligned(16))) UINT8 EP0_Databuf[ USBHS_UEP0_SIZE ]; 		  /*ç«¯ç‚¹0æ•°æ®æ”¶å‘ç¼“å†²åŒº*/
+extern __attribute__ ((aligned(16))) UINT8 EP0_Databuf[ USBHS_UEP0_SIZE ]          __attribute__((section(".DMADATA"))); /*ç«¯ç‚¹0æ•°æ®æ”¶å‘ç¼“å†²åŒº*/
+extern __attribute__ ((aligned(16))) UINT8 EP1_Rx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹1æ•°æ®æ¥æ”¶ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP1_Tx_Databuf[ DEF_USB_EP1_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹1æ•°æ®å‘é€ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP2_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹2æ•°æ®æ¥æ”¶ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP2_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹2æ•°æ®å‘é€ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP3_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹3æ•°æ®æ¥æ”¶ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP3_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹3æ•°æ®å‘é€ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP4_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹4æ•°æ®æ¥æ”¶ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP4_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹4æ•°æ®å‘é€ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP5_Tx_Databuf[ DEF_USB_EP5_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹5æ•°æ®å‘é€ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP6_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹6æ•°æ®æ¥æ”¶ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP6_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹6æ•°æ®å‘é€ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP7_Tx_Databuf[ DEF_USB_EP7_FS_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹7æ•°æ®å‘é€ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP8_Rx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹8æ•°æ®æ¥æ”¶ç¼“å†²åŒº */
+extern __attribute__ ((aligned(16))) UINT8 EP8_Tx_Databuf[ USBHS_MAX_PACK_SIZE ]   __attribute__((section(".DMADATA"))); /* ç«¯ç‚¹8æ•°æ®å‘é€ç¼“å†²åŒº */
 
 extern const UINT8 *pDescr;
-extern volatile UINT8  USBHS_Dev_SetupReqCode;									/* USB2.0¸ßËÙÉè±¸Setup°üÃüÁîÂë */
-extern volatile UINT16 USBHS_Dev_SetupReqLen;									/* USB2.0¸ßËÙÉè±¸Setup°ü³¤¶È */
-extern volatile UINT8  USBHS_Dev_SetupReqValueH;								/* USB2.0¸ßËÙÉè±¸Setup°üValue¸ß×Ö½Ú */	
-extern volatile UINT8  USBHS_Dev_Config;										/* USB2.0¸ßËÙÉè±¸ÅäÖÃÖµ */
-extern volatile UINT8  USBHS_Dev_Address;										/* USB2.0¸ßËÙÉè±¸µØÖ·Öµ */
-extern volatile UINT8  USBHS_Dev_SleepStatus;                                   /* USB2.0¸ßËÙÉè±¸Ë¯Ãß×´Ì¬ */
-extern volatile UINT8  USBHS_Dev_EnumStatus;                                    /* USB2.0¸ßËÙÉè±¸Ã¶¾Ù×´Ì¬ */
-extern volatile UINT8  USBHS_Dev_Endp0_Tog;                                     /* USB2.0¸ßËÙÉè±¸¶Ëµã0Í¬²½±êÖ¾ */
+extern volatile UINT8  USBHS_Dev_SetupReqCode;									/* USB2.0é«˜é€Ÿè®¾å¤‡SetupåŒ…å‘½ä»¤ç  */
+extern volatile UINT16 USBHS_Dev_SetupReqLen;									/* USB2.0é«˜é€Ÿè®¾å¤‡SetupåŒ…é•¿åº¦ */
+extern volatile UINT8  USBHS_Dev_SetupReqValueH;								/* USB2.0é«˜é€Ÿè®¾å¤‡SetupåŒ…Valueé«˜å­—èŠ‚ */	
+extern volatile UINT8  USBHS_Dev_Config;										/* USB2.0é«˜é€Ÿè®¾å¤‡é…ç½®å€¼ */
+extern volatile UINT8  USBHS_Dev_Address;										/* USB2.0é«˜é€Ÿè®¾å¤‡åœ°å€å€¼ */
+extern volatile UINT8  USBHS_Dev_SleepStatus;                                   /* USB2.0é«˜é€Ÿè®¾å¤‡ç¡çœ çŠ¶æ€ */
+extern volatile UINT8  USBHS_Dev_EnumStatus;                                    /* USB2.0é«˜é€Ÿè®¾å¤‡æšä¸¾çŠ¶æ€ */
+extern volatile UINT8  USBHS_Dev_Endp0_Tog;                                     /* USB2.0é«˜é€Ÿè®¾å¤‡ç«¯ç‚¹0åŒæ­¥æ ‡å¿— */
 
-extern volatile UINT16 USBHS_Up_PackLenMax;                                     /* USB2.0¸ßËÙÉè±¸µ±Ç°ÔÊĞíÉÏ´«µÄ°ü³¤¶È×î´óÖµ(È«ËÙ64¸ßËÙ512) */
+extern volatile UINT16 USBHS_Up_PackLenMax;                                     /* USB2.0é«˜é€Ÿè®¾å¤‡å½“å‰å…è®¸ä¸Šä¼ çš„åŒ…é•¿åº¦æœ€å¤§å€¼(å…¨é€Ÿ64é«˜é€Ÿ512) */
 
 /********************************************************************************/
-/* º¯ÊıÍâÀ© */
-extern void USBHS_RCC_Init( void );												/* USB2.0¸ßËÙÉè±¸RCC³õÊ¼»¯ */
-extern void USBHS_Device_Endp_Init ( void );									/* USB2.0¸ßËÙÉè±¸¶Ëµã³õÊ¼»¯ */		
-extern void USBHS_Device_Init ( FunctionalState sta );							/* USB2.0¸ßËÙÉè±¸³õÊ¼»¯ */		
-extern void USBHS_Device_SetAddress( UINT32 address );							/* USB2.0¸ßËÙÉè±¸ÉèÖÃÉè±¸µØÖ· */		
-extern void USBHS_IRQHandler( void );											/* USB2.0¸ßËÙÉè±¸ÖĞ¶Ï·şÎñ³ÌĞò */		
-extern void USBHS_Sleep_WakeUp_Cfg( void );                                     /* USB2.0¸ßËÙÉè±¸Ë¯Ãß»½ĞÑÅäÖÃ */
+/* å‡½æ•°å¤–æ‰© */
+extern void USBHS_RCC_Init( void );												/* USB2.0é«˜é€Ÿè®¾å¤‡RCCåˆå§‹åŒ– */
+extern void USBHS_Device_Endp_Init ( void );									/* USB2.0é«˜é€Ÿè®¾å¤‡ç«¯ç‚¹åˆå§‹åŒ– */		
+extern void USBHS_Device_Init ( FunctionalState sta );							/* USB2.0é«˜é€Ÿè®¾å¤‡åˆå§‹åŒ– */		
+extern void USBHS_Device_SetAddress( UINT32 address );							/* USB2.0é«˜é€Ÿè®¾å¤‡è®¾ç½®è®¾å¤‡åœ°å€ */		
+extern void USBHS_IRQHandler( void );											/* USB2.0é«˜é€Ÿè®¾å¤‡ä¸­æ–­æœåŠ¡ç¨‹åº */		
+extern void USBHS_Sleep_WakeUp_Cfg( void );                                     /* USB2.0é«˜é€Ÿè®¾å¤‡ç¡çœ å”¤é†’é…ç½® */
 
 #ifdef __cplusplus
 }

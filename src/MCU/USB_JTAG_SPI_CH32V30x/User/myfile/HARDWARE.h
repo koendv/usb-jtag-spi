@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : µ×²ãÓ²¼şÏà¹Ø¶¨ÒåÍ·ÎÄ¼ş
+* Description        : åº•å±‚ç¡¬ä»¶ç›¸å…³å®šä¹‰å¤´æ–‡ä»¶
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -15,34 +15,34 @@
 
 
 /******************************************************************************/
-/* Ó²¼şÒı½Å²¿·Ö */
+/* ç¡¬ä»¶å¼•è„šéƒ¨åˆ† */
 /******************************************************************************/
-#define PIN_SPI_CS0_LOW( )          ( GPIOB->BCR = GPIO_Pin_12 )                /* SPI_CS0Òı½ÅÊä³öµÍµçÆ½ */
-#define PIN_SPI_CS0_HIGH( )         ( GPIOB->BSHR = GPIO_Pin_12 )               /* SPI_CS0Òı½ÅÊä³ö¸ßµçÆ½ */
+#define PIN_SPI_CS0_LOW( )          ( GPIOB->BCR = GPIO_Pin_12 )                /* SPI_CS0å¼•è„šè¾“å‡ºä½ç”µå¹³ */
+#define PIN_SPI_CS0_HIGH( )         ( GPIOB->BSHR = GPIO_Pin_12 )               /* SPI_CS0å¼•è„šè¾“å‡ºé«˜ç”µå¹³ */
 
-#define PIN_SPI_CS1_LOW( )          ( GPIOC->BCR = GPIO_Pin_6 )                 /* SPI2_CS1Òı½ÅÊä³öµÍµçÆ½ */
-#define PIN_SPI_CS1_HIGH( )         ( GPIOC->BSHR = GPIO_Pin_6 )                /* SPI2_CS1Òı½ÅÊä³ö¸ßµçÆ½ */
+#define PIN_SPI_CS1_LOW( )          ( GPIOC->BCR = GPIO_Pin_6 )                 /* SPI2_CS1å¼•è„šè¾“å‡ºä½ç”µå¹³ */
+#define PIN_SPI_CS1_HIGH( )         ( GPIOC->BSHR = GPIO_Pin_6 )                /* SPI2_CS1å¼•è„šè¾“å‡ºé«˜ç”µå¹³ */
 
 /******************************************************************************/
-/* WWDG¿´ÃÅ¹·Î¹¹·Öµ  */
+/* WWDGçœ‹é—¨ç‹—å–‚ç‹—å€¼  */
 #define WWDG_CNT				    0X7F
 #define NOP( )                      asm volatile ("nop");
 
 /******************************************************************************/
-/* ±äÁ¿ÍâÀ© */
-extern volatile UINT16 TIM2_100mS_Count;										/* ¶¨Ê±Æ÷2 100mS¶¨Ê±¼ÆÊı */
-extern volatile UINT8  TIM2_1S_Count;											/* ¶¨Ê±Æ÷2 1S¶¨Ê±¼ÆÊı */
+/* å˜é‡å¤–æ‰© */
+extern volatile UINT16 TIM2_100mS_Count;										/* å®šæ—¶å™¨2 100mSå®šæ—¶è®¡æ•° */
+extern volatile UINT8  TIM2_1S_Count;											/* å®šæ—¶å™¨2 1Så®šæ—¶è®¡æ•° */
 
 /******************************************************************************/
-/* º¯ÊıÍâÀ© */
-extern void Delay_uS( UINT16 delay );											/* Èí¼şÎ¢Ãë¼¶ÑÓÊ± */
-extern void Delay_mS( UINT16 delay );											/* Èí¼şºÀÃë¼¶ÑÓÊ± */
-extern UINT8 RCC_Configuration( void );											/* Ê±ÖÓÅäÖÃ */
-extern void NVIC_Configuration( void );											/* ÖĞ¶ÏÅäÖÃ */
-extern void TIM2_Init( void );													/* TIM2³õÊ¼»¯ */
-extern void IWDG_Feed_Init( UINT16 prer, UINT16 rlr );							/* IWDG¿´ÃÅ¹·³õÊ¼»¯ */
-extern void WWDG_Config( UINT8 tr, UINT8 wr, UINT32 prv );						/* WWDG¿´ÃÅ¹·³õÊ¼»¯ */
-extern void WWDG_Feed( void );													/* WWDG¿´ÃÅ¹·Î¹¹· */
+/* å‡½æ•°å¤–æ‰© */
+extern void Delay_uS( UINT16 delay );											/* è½¯ä»¶å¾®ç§’çº§å»¶æ—¶ */
+extern void Delay_mS( UINT16 delay );											/* è½¯ä»¶è±ªç§’çº§å»¶æ—¶ */
+extern UINT8 RCC_Configuration( void );											/* æ—¶é’Ÿé…ç½® */
+extern void NVIC_Configuration( void );											/* ä¸­æ–­é…ç½® */
+extern void TIM2_Init( void );													/* TIM2åˆå§‹åŒ– */
+extern void IWDG_Feed_Init( UINT16 prer, UINT16 rlr );							/* IWDGçœ‹é—¨ç‹—åˆå§‹åŒ– */
+extern void WWDG_Config( UINT8 tr, UINT8 wr, UINT32 prv );						/* WWDGçœ‹é—¨ç‹—åˆå§‹åŒ– */
+extern void WWDG_Feed( void );													/* WWDGçœ‹é—¨ç‹—å–‚ç‹— */
 
 #endif
 

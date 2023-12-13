@@ -11,12 +11,12 @@
 
 
 /******************************************************************************/
-/* Í·ÎÄ¼þ°üº¬ */
+/* å¤´æ–‡ä»¶åŒ…å« */
 #include "ch32v30x_it.h"
 #include "main.h"
 
 /******************************************************************************/
-/* º¯ÊýÉùÃ÷ */
+/* å‡½æ•°å£°æ˜Ž */
 void NMI_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 void HardFault_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 //void Ecall_M_Mode_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
@@ -114,7 +114,7 @@ void TIM4_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 //void DMA2_Channel11_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
 /******************************************************************************/
-/* ³£¡¢±äÁ¿¶¨Òå */
+/* å¸¸ã€å˜é‡å®šä¹‰ */
 volatile UINT16 T2_100uS_Cout = 0;
 
 /*******************************************************************************
@@ -152,10 +152,10 @@ void HardFault_Handler(void)
 *******************************************************************************/
 void TIM2_IRQHandler( void )
 {
-	/* Ö¸Ê¾µÆ¿ØÖÆ¼ÆÊ± */
+	/* æŒ‡ç¤ºç¯æŽ§åˆ¶è®¡æ—¶ */
 	TIM2_100mS_Count++;
 
-    /* JTAG³¬Ê±¼ÆÊ± */
+    /* JTAGè¶…æ—¶è®¡æ—¶ */
 	T2_100uS_Cout++;
 	if( T2_100uS_Cout >= 10 )
 	{
@@ -165,7 +165,7 @@ void TIM2_IRQHandler( void )
 	COMM.Rx_IdleCount++;
 	COMM.USB_Up_TimeOut++;
 
-	/* ÇåÖÐ¶Ï×´Ì¬ */
+	/* æ¸…ä¸­æ–­çŠ¶æ€ */
 //	TIM_ClearITPendingBit( TIM2, TIM_IT_Update );
 	TIM2->INTFR = (uint16_t)~TIM_IT_Update;
 }
@@ -179,7 +179,7 @@ void TIM2_IRQHandler( void )
 *******************************************************************************/
 void TIM4_IRQHandler( void )
 {
-	/* ÇåÖÐ¶Ï×´Ì¬ */
+	/* æ¸…ä¸­æ–­çŠ¶æ€ */
 //	TIM_ClearITPendingBit( TIM4, TIM_IT_Update );
 	TIM4->INTFR = (uint16_t)~TIM_IT_Update;
 }

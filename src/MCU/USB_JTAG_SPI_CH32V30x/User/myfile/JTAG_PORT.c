@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : JTAGÓ²¼şµ×²ã²Ù×÷
+* Description        : JTAGç¡¬ä»¶åº•å±‚æ“ä½œ
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -11,19 +11,19 @@
 
 
 /******************************************************************************/
-/* Í·ÎÄ¼ş°üº¬ */
-#include <MAIN.h>                                                               /* Í·ÎÄ¼ş°üº¬ */
+/* å¤´æ–‡ä»¶åŒ…å« */
+#include <MAIN.h>                                                               /* å¤´æ–‡ä»¶åŒ…å« */
 #include "stdio.h"
 #include "stdlib.h"
 #include "JTAG_Port.h"
 #include "debug.h"
 
 /*******************************************************************************/
-/* ³£¡¢±äÁ¿ºê¶¨Òå */
+/* å¸¸ã€å˜é‡å®å®šä¹‰ */
 
 /*******************************************************************************
 * Function Name  : JTAG_Port_Init
-* Description    : JTAG½Ó¿ÚÓ²¼ş³õÊ¼»¯
+* Description    : JTAGæ¥å£ç¡¬ä»¶åˆå§‹åŒ–
 * Input          : None
 * Output         : None
 * Return         : None
@@ -54,7 +54,7 @@ void JTAG_Port_Init( void )
 
 /*******************************************************************************
 * Function Name  : JTAG_Port_BitShift
-* Description    : JTAG½Ó¿ÚÎ»Êä³ö
+* Description    : JTAGæ¥å£ä½è¾“å‡º
 * Input          : None
 * Output         : None
 * Return         : None
@@ -69,7 +69,7 @@ void JTAG_Port_BitShift( UINT8 dat )
 
 /*******************************************************************************
 * Function Name  : JTAG_Port_BitRead
-* Description    : JTAG½Ó¿ÚÎ»¶ÁÈ¡
+* Description    : JTAGæ¥å£ä½è¯»å–
 * Input          : None
 * Output         : None
 * Return         : None
@@ -84,7 +84,7 @@ UINT8 JTAG_Port_BitRead( void )
 
 /*******************************************************************************
 * Function Name  : JTAG_Port_DataShift
-* Description    : JTAG½Ó¿ÚÊı¾İÒÆÎ»Êä³ö
+* Description    : JTAGæ¥å£æ•°æ®ç§»ä½è¾“å‡º
 * Input          : None
 * Output         : None
 * Return         : None
@@ -126,7 +126,7 @@ void JTAG_Port_DataShift( UINT8 dat )
 
 /*******************************************************************************
 * Function Name  : JTAG_Port_DataShift
-* Description    : JTAG½Ó¿ÚÊı¾İÒÆÎ»Êä³ö²¢¶ÁÈ¡
+* Description    : JTAGæ¥å£æ•°æ®ç§»ä½è¾“å‡ºå¹¶è¯»å–
 * Input          : None
 * Output         : None
 * Return         : None

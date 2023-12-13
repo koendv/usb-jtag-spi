@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : ´®¿Ú´òÓ¡Êä³ö¿ØÖÆÍ·ÎÄ¼ş
+* Description        : ä¸²å£æ‰“å°è¾“å‡ºæ§åˆ¶å¤´æ–‡ä»¶
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -14,12 +14,12 @@
 #define __PRINTF_H__
 
 /*******************************************************************************/
-/* ¶¨Òå´®¿Ú´òÓ¡Êä³ö¿ª¹Ø */
-#define MY_DEBUG_PRINTF            1				 				 			/* ³£¹é´òÓ¡¼àÊÓ¿ª¹Ø */
+/* å®šä¹‰ä¸²å£æ‰“å°è¾“å‡ºå¼€å…³ */
+#define MY_DEBUG_PRINTF            1				 				 			/* å¸¸å½’æ‰“å°ç›‘è§†å¼€å…³ */
 
-/* Èç¹û¶¨ÒåÉÏÃæµÄºêÔòÍ¨¹ı´®¿Ú´òÓ¡Êä³ö,·ñÔò²»´¦Àí */
+/* å¦‚æœå®šä¹‰ä¸Šé¢çš„å®åˆ™é€šè¿‡ä¸²å£æ‰“å°è¾“å‡º,å¦åˆ™ä¸å¤„ç† */
 #if( MY_DEBUG_PRINTF == 1 )
-#define DUG_PRINTF( format, arg... )    printf( format, ##arg )		 			/* ´®¿Ú´òÓ¡Êä³ö */
+#define DUG_PRINTF( format, arg... )    printf( format, ##arg )		 			/* ä¸²å£æ‰“å°è¾“å‡º */
 #else
 #define DUG_PRINTF( format, arg... )    do{ if( 0 )printf( format, ##arg ); }while( 0 );
 #endif

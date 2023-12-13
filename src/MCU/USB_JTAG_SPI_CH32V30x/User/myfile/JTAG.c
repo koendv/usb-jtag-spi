@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : USBתJTAG������ز��ֳ���
+* Description        : USB转JTAG操作相关部分程序
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -11,34 +11,34 @@
 
 
 /******************************************************************************/
-/* ͷ�ļ����� */
-#include <MAIN.h>                                                               /* ͷ�ļ����� */
+/* 头文件包含 */
+#include <MAIN.h>                                                               /* 头文件包含 */
 
 /******************************************************************************/
-/* ������������ */
-volatile COMM_CTL COMM;                                                         /* �ӿ�ͨ�ſ�����ؽṹ�� */
-__attribute__ ((aligned(4))) UINT8  Comm_Tx_Buf[ DEF_COMM_TX_BUF_LEN ];         /* �ӿ�ͨ�ŷ��ͻ�����(USB�´�������) */
-__attribute__ ((aligned(4))) UINT8  Comm_Rx_Buf[ DEF_COMM_RX_BUF_LEN ];         /* �ӿ�ͨ�Ž��ջ�����(USB�ϴ�������) */
+/* 常、变量定义 */
+volatile COMM_CTL COMM;                                                         /* 接口通信控制相关结构体 */
+__attribute__ ((aligned(4))) UINT8  Comm_Tx_Buf[ DEF_COMM_TX_BUF_LEN ];         /* 接口通信发送缓冲区(USB下传缓冲区) */
+__attribute__ ((aligned(4))) UINT8  Comm_Rx_Buf[ DEF_COMM_RX_BUF_LEN ];         /* 接口通信接收缓冲区(USB上传缓冲区) */
 
-volatile UINT8  CMDPack_Op_Status = 0x00;                                       /* �����������ִ��״̬ */
-volatile UINT8  CMDPack_Op_Code = 0x00;                                         /* ������������� */
-volatile UINT16 CMDPack_Op_Len = 0x00;                                          /* ������ĳ��� */
-volatile UINT16 CMDPack_Op_Len_Save = 0x00;                                     /* ������ĳ����ݴ� */
+volatile UINT8  CMDPack_Op_Status = 0x00;                                       /* 命令包的命令执行状态 */
+volatile UINT8  CMDPack_Op_Code = 0x00;                                         /* 命令包的命令码 */
+volatile UINT16 CMDPack_Op_Len = 0x00;                                          /* 命令包的长度 */
+volatile UINT16 CMDPack_Op_Len_Save = 0x00;                                     /* 命令包的长度暂存 */
 
-volatile UINT8  JTAG_Mode = 0x00;                                               /* JTAGģʽ��0��Э��ģʽ��1��bit-bangģʽ */
-volatile UINT8  JTAG_Speed = 0x00;                                              /* JTAG�ٶȣ�0-4��4�ٶ����*/
-volatile UINT8  JTAG_Read_Mode = 0;                                             /* JTAG��ȡģʽ */
-volatile UINT8  JTAG_Shift_Mode = 0;                                            /* JTAG��λģʽ */
-volatile UINT32 JTAG_Shift_Cnt = 0;                                             /* JTAG��λ���� */
-volatile UINT32 JTAG_Time_Count = 0;                                            /* JTAG��ʱ */
+volatile UINT8  JTAG_Mode = 0x00;                                               /* JTAG模式：0：协议模式；1：bit-bang模式 */
+volatile UINT8  JTAG_Speed = 0x00;                                              /* JTAG速度：0-4，4速度最快*/
+volatile UINT8  JTAG_Read_Mode = 0;                                             /* JTAG读取模式 */
+volatile UINT8  JTAG_Shift_Mode = 0;                                            /* JTAG移位模式 */
+volatile UINT32 JTAG_Shift_Cnt = 0;                                             /* JTAG移位计数 */
+volatile UINT32 JTAG_Time_Count = 0;                                            /* JTAG计时 */
 
-SPI_InitTypeDef SPI_Cfg;                                                        /* SPI�ӿ����� */
-__attribute__ ((aligned(4))) UINT8  SPI_TxDMA_Buf[ 1024 ];                      /* SPI_I2C����DMA������ */
-__attribute__ ((aligned(4))) UINT8  SPI_Com_Buf[ 1024 ];                        /* SPI�������ݻ����� */
+SPI_InitTypeDef SPI_Cfg;                                                        /* SPI接口配置 */
+__attribute__ ((aligned(4))) UINT8  SPI_TxDMA_Buf[ 1024 ];                      /* SPI_I2C发送DMA缓冲区 */
+__attribute__ ((aligned(4))) UINT8  SPI_Com_Buf[ 1024 ];                        /* SPI公共数据缓冲区 */
 
 /*******************************************************************************
 * Function Name  : JTAG_Init
-* Description    : JTAG��ʼ��
+* Description    : JTAG初始化
 * Input          : None
 * Output         : None
 * Return         : None
@@ -61,7 +61,7 @@ void JTAG_Init( void )
 
 /*******************************************************************************
 * Function Name  : JTAG_SPI_Init
-* Description    : JTAGģʽ��SPIx�ӿڳ�ʼ��
+* Description    : JTAG模式下SPIx接口初始化
 * Input          : None
 * Output         : None
 * Return         : None
@@ -82,7 +82,7 @@ void JTAG_SPI_Init( UINT16 speed )
     SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_LSB;
     SPI_Init( SPI2, &SPI_InitStructure );
 
-    /* �ж��Ƿ���ձ�־Ϊ1,��������ȡ���ݼĴ�����0(CH32V307��S[I2\SPI3,��λĬ��ֵΪ1) */
+    /* 判断是否接收标志为1,如果是则读取数据寄存器清0(CH32V307的S[I2\SPI3,该位默认值为1) */
     if( SPI_I2S_GetFlagStatus( SPI2, SPI_I2S_FLAG_RXNE ) == SET )
     {
         SPI2->DATAR;
@@ -93,7 +93,7 @@ void JTAG_SPI_Init( UINT16 speed )
 
 /*******************************************************************************
 * Function Name  : JTAG_Port_SwTo_SPIMode
-* Description    : JTAG�ӿ�����ΪSPIģʽ
+* Description    : JTAG接口设置为SPI模式
 * Input          : None
 * Output         : None
 * Return         : None
@@ -102,19 +102,19 @@ void JTAG_Port_SwTo_SPIMode( void )
 {
     UINT32 temp;
 
-    /* PB13,PB15: ������� ,50MHz; PB14: �������� */
+    /* PB13,PB15: 推挽输出 ,50MHz; PB14: 浮空输入 */
     temp = GPIOB->CFGHR;
     temp &= 0x000FFFFF;
     temp |= 0xB4B00000;
     GPIOB->CFGHR = temp;
 
-    /* ʹ��SPI */
+    /* 使能SPI */
     SPI2->CTLR1 |= CTLR1_SPE_Set;
 }
 
 /*******************************************************************************
 * Function Name  : JTAG_Port_SwTo_GPIOMode
-* Description    : JTAG�ӿ�����ΪGPIOģʽ
+* Description    : JTAG接口设置为GPIO模式
 * Input          : None
 * Output         : None
 * Return         : None
@@ -123,7 +123,7 @@ void JTAG_Port_SwTo_GPIOMode( void )
 {
     UINT32 temp;
 
-    /* PB13,PB15: �������  ,50MHz; PB14: �������� */
+    /* PB13,PB15: 推挽输出  ,50MHz; PB14: 输入上拉 */
     temp = GPIOB->CFGHR;
     temp &= 0x000FFFFF;
     temp |= 0x38300000;
@@ -135,14 +135,14 @@ void JTAG_Port_SwTo_GPIOMode( void )
 
 /*******************************************************************************
 * Function Name  : COMM_CMDPack_Switch
-* Description    : �ӿ�ͨ��������л�
+* Description    : 接口通信命令包切换
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void COMM_CMDPack_Switch( UINT8 mode )
 {
-    /* ���㵱ǰ�����ʣ�೤�ȼ�ƫ�ƣ����ж��Ƿ���Ҫ�л������� */
+    /* 计算当前命令包剩余长度及偏移，并判断是否需要切换缓冲区 */
     if( mode == 0 )
     {
         if( COMM.CMDP_Cur_RemainLen >= COMM.CMDP_Cur_CMDLen )
@@ -157,14 +157,14 @@ void COMM_CMDPack_Switch( UINT8 mode )
     }
     if( COMM.CMDP_Cur_RemainLen == 0x00 )
     {
-        /* �л������������ */
+        /* 切换命令包缓冲区 */
 
-        /* �ر�USB�ж� */
+        /* 关闭USB中断 */
         NVIC_DisableIRQ( USBHS_IRQn );
         NVIC_DisableIRQ( USBHS_IRQn );
         NVIC_DisableIRQ( USBHS_IRQn );
 
-        /* ������ر��� */
+        /* 计算相关变量 */
         COMM.CMDP_PackLen[ COMM.CMDP_DealNum ] = 0x0000;
         COMM.CMDP_DealNum++;
         if( COMM.CMDP_DealNum >= DEF_COMM_BUF_PACKNUM_MAX )
@@ -173,7 +173,7 @@ void COMM_CMDPack_Switch( UINT8 mode )
         }
         COMM.CMDP_RemainNum--;
 
-        /* �����ǰSPI����ͣ�´������������´� */
+        /* 如果当前SPI已暂停下传则重启驱动下传 */
         if( ( COMM.USB_Down_StopFlag == 0x01 ) &&
             ( COMM.CMDP_RemainNum < ( DEF_COMM_BUF_PACKNUM_MAX - 2 ) ) )
         {
@@ -183,14 +183,14 @@ void COMM_CMDPack_Switch( UINT8 mode )
             COMM.USB_Down_StopFlag = 0x00;
         }
 
-        /* ���´�USB�ж� */
+        /* 重新打开USB中断 */
         NVIC_EnableIRQ( USBHS_IRQn );
     }
 }
 
 /*******************************************************************************
 * Function Name  : COMM_Load_PackHead
-* Description    : �ӿ�ͨ��װ��Э���ͷ
+* Description    : 接口通信装载协议包头
 * Input          : None
 * Output         : None
 * Return         : None
@@ -224,7 +224,7 @@ void COMM_Load_PackHead( UINT8 cmd, UINT16 len )
 
 /*******************************************************************************
 * Function Name  : COMM_CMDPack_Deal
-* Description    : �ӿ�ͨ�����������
+* Description    : 接口通信命令包处理
 * Input          : None
 * Output         : None
 * Return         : None
@@ -243,24 +243,24 @@ UINT8 COMM_CMDPack_Deal( void )
     UINT16 recv_len;
     UINT8  buf[ 32 ];
 
-    /* �����SPI�ӿ��������ڷ��ͣ����ѯִ��״̬ */
+    /* 如果有SPI接口数据正在发送，则查询执行状态 */
     if( COMM.Tx_Rx_Status == DEF_SPI_STATUS_TX )
     {
         SPIx_Tx_DMA_Deal( );
         return( 0x01 );
     }
 
-    /* �����SPI�ӿ��������ڽ��գ����ѯִ��״̬ */
+    /* 如果有SPI接口数据正在接收，则查询执行状态 */
     if( COMM.Tx_Rx_Status == DEF_SPI_STATUS_RX )
     {
         SPIx_Rx_DMA_Deal( );
         return( 0x02 );
     }
 
-    /* ���δ���յ��������ֱ�ӷ��� */
+    /* 如果未接收到命令包则直接返回 */
     if( COMM.CMDP_RemainNum == 0x00 )
     {
-        /* �ж��Ƿ���JTAG������Ҫ�ϴ�(ִ����������1�������������ϴ�) */
+        /* 判断是否有JTAG数据需要上传(执行完完整的1包才启动数据上传) */
         if( CMDPack_Op_Status == 0 )
         {
             COMM_RxData_Up_Deal( );
@@ -268,7 +268,7 @@ UINT8 COMM_CMDPack_Deal( void )
         return( 0x03 );
     }
 
-    /* �ж��Ƿ�ǰ������м���װ��ִ�У���������װ����һ����� */
+    /* 判断是否当前命令包中继续装载执行，还是重新装载下一命令包 */
     if( COMM.CMDP_Cur_RemainLen == 0x00 )
     {
         COMM.CMDP_Cur_RemainLen = COMM.CMDP_PackLen[ COMM.CMDP_DealNum ];
@@ -278,7 +278,7 @@ UINT8 COMM_CMDPack_Deal( void )
 //	DUG_PRINTF("L:%x\n",COMM.CMDP_Cur_RemainLen);
 //	DUG_PRINTF("S:%x\n",CMDPack_Op_Status);
 
-    /* ��������������� */
+    /* 分析命令包并处理 */
     sp_flag = 0x00;
     op_flag = 0x00;
     pTxbuf = &Comm_Tx_Buf[ COMM.CMDP_Cur_DealPtr ];
@@ -286,45 +286,45 @@ UINT8 COMM_CMDPack_Deal( void )
     {
         if( CMDPack_Op_Status == 0x00 )
         {
-            /* ȡ1���ֽ������� */
+            /* 取1个字节命令码 */
             CMDPack_Op_Code = *pTxbuf++;
             COMM.CMDP_Cur_DealPtr++;
             COMM.CMDP_Cur_RemainLen--;
 
 //			DUG_PRINTF("CMD:%x\n",CMDPack_Op_Code);
 
-            /* �ж��������Ƿ���ȷ,����Ǿɰ汾������ֱ�Ӱ�ԭ�ȸ�ʽ���� */
+            /* 判断命令码是否正确,如果是旧版本命令则直接按原先格式处理 */
             if( ( CMDPack_Op_Code >= DEF_CMD_SPI_INIT ) &&
                 ( CMDPack_Op_Code <= DEF_CMD_JTAG_DATA_SHIFT_RD ) )
             {
-                /* �л�����ִ��״̬ */
+                /* 切换命令执行状态 */
                 CMDPack_Op_Status = 0x01;
             }
             else
             {
-                /* �л�����ִ��״̬ */
+                /* 切换命令执行状态 */
                 CMDPack_Op_Status = 0x00;
             }
 
-            /* �ж��Ƿ���Ҫ���л������л� */
+            /* 判断是否需要进行缓冲区切换 */
             COMM_CMDPack_Switch( 0x01 );
         }
         else if( CMDPack_Op_Status == 0x01 )
         {
-            /* ȡ2���ֽ������(��1�ֽ�) */
+            /* 取2个字节命令长度(第1字节) */
             CMDPack_Op_Len = *pTxbuf++;
             COMM.CMDP_Cur_DealPtr++;
             COMM.CMDP_Cur_RemainLen--;
 
-            /* �л�����ִ��״̬ */
+            /* 切换命令执行状态 */
             CMDPack_Op_Status = 0x02;
 
-            /* �ж��Ƿ���Ҫ���л������л� */
+            /* 判断是否需要进行缓冲区切换 */
             COMM_CMDPack_Switch( 0x01 );
         }
         else if( CMDPack_Op_Status == 0x02 )
         {
-            /* ȡ2���ֽ������(��2�ֽ�) */
+            /* 取2个字节命令长度(第2字节) */
             CMDPack_Op_Len |= (((UINT16)*pTxbuf++) << 8 );
             CMDPack_Op_Len_Save = CMDPack_Op_Len;
             COMM.CMDP_Cur_DealPtr++;
@@ -332,61 +332,61 @@ UINT8 COMM_CMDPack_Deal( void )
 
 //			DUG_PRINTF("C_L:%x\n",CMDPack_Op_Len);
 
-            /* �л�����ִ��״̬ */
+            /* 切换命令执行状态 */
             CMDPack_Op_Status = 0x03;
 
-            /* �ж��Ƿ���Ҫ���л������л� */
+            /* 判断是否需要进行缓冲区切换 */
             COMM_CMDPack_Switch( 0x01 );
         }
         else
         {
-            /* ִ�к���N���ֽ����� */
+            /* 执行后续N个字节数据 */
 
-            /* �����������ִ�г��� */
+            /* 计算后续数据执行长度 */
             pack_len = CMDPack_Op_Len;
             if( pack_len >= COMM.CMDP_Cur_RemainLen )
             {
                 pack_len = COMM.CMDP_Cur_RemainLen;
             }
 
-            /* ���ݵ�ǰ��������ִ�к������� */
+            /* 根据当前命令批量执行后续数据 */
             switch( CMDPack_Op_Code )
             {
                 case DEF_CMD_SPI_INIT:
-                    /* 0xC0---SPI��ʼ������ */
-                    /* (1)��18���ֽڵ�SPI��ʼ��������ΪSPI�������SPI.h���ļ��еĽṹ��SPI_InitTypeDef��
-                       (2)��2���ֽ����ݶ�д֮�����ʱֵ(�����SPI�ӿڳ����ȡд����������(DEF_CMD_SPI_RD_WR))����λΪuS��
-                       (3)��1���ֽ�SPI����Ĭ���ֽڣ�
-                       (4)��1���ֽ�������ƣ�
-                                                                          λ7��ƬѡCS1���Կ��ƣ�0���͵�ƽ��Ч��1���е�ƽ��Ч��
-                                                                          λ6��ƬѡCS2���Կ��ƣ�0���͵�ƽ��Ч��1���е�ƽ��Ч��
-                                                                          λ3-0��������
-                       (5)��4���ֽڱ�����*/
+                    /* 0xC0---SPI初始化命令 */
+                    /* (1)、18个字节的SPI初始化参数，为SPI具体见“SPI.h”文件中的结构体SPI_InitTypeDef；
+                       (2)、2个字节数据读写之间的延时值(仅针对SPI接口常规读取写入数据命令(DEF_CMD_SPI_RD_WR))，单位为uS；
+                       (3)、1个字节SPI发送默认字节；
+                       (4)、1个字节杂项控制；
+                                                                          位7：片选CS1极性控制：0：低电平有效；1：有电平有效；
+                                                                          位6：片选CS2极性控制：0：低电平有效；1：有电平有效；
+                                                                          位3-0：保留；
+                       (5)、4个字节保留；*/
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = DEF_CMD_C0_INFOLEN;
 
-                    /* ִ�и����� */
+                    /* 执行该命令 */
                     if( pack_len >= COMM.CMDP_Cur_CMDLen )
                     {
-                        /* (1)��18���ֽڵ�SPI��ʼ������ */
+                        /* (1)、18个字节的SPI初始化参数 */
                         memcpy( &SPI_Cfg.SPI_Direction, pTxbuf, sizeof( SPI_InitTypeDef ) );
                         SPIx_Port_Init( );
                         SPIx_Tx_DMA_Init( DMA1_Channel5, (u32)&SPI2->DATAR, (u32)&SPI_TxDMA_Buf[ 0 ], 0x00 );
                         SPIx_Rx_DMA_Init( DMA1_Channel4, (u32)&SPI2->DATAR, (u32)&SPI_Com_Buf[ 0 ], 0x00 );
                         pTxbuf += 18;
 
-                        /* (2)��2���ֽ����ݶ�д֮�����ʱֵ */
+                        /* (2)、2个字节数据读写之间的延时值 */
                         COMM.SPI_ByteDelay = *pTxbuf++;
                         COMM.SPI_ByteDelay += ( ( (UINT16)*pTxbuf++ ) << 8 );
 
-                        /* (3)��1���ֽ�SPI����Ĭ���ֽ� */
+                        /* (3)、1个字节SPI发送默认字节 */
                         COMM.SPI_FillData = *pTxbuf++;
 
-                        /* (4)��1���ֽ�������� */
+                        /* (4)、1个字节杂项控制 */
                         COMM.Bit_Control = *pTxbuf++;
 
-                        /* (5)��4���ֽڱ�����*/
+                        /* (5)、4个字节保留；*/
                         pTxbuf += 4;
                     }
                     else
@@ -398,7 +398,7 @@ UINT8 COMM_CMDPack_Deal( void )
                         SPIx_Rx_DMA_Init( DMA1_Channel4, (u32)&SPI2->DATAR, (u32)&SPI_Com_Buf[ 0 ], 0x00 );
                     }
 
-                    /* ���÷���Ӧ��� */
+                    /* 设置返回应答包 */
                     SPI_Com_Buf[ 0 ] = DEF_CMD_SPI_INIT;
                     SPI_Com_Buf[ 1 ] = 0x01;
                     SPI_Com_Buf[ 2 ] = 0x00;
@@ -411,18 +411,18 @@ UINT8 COMM_CMDPack_Deal( void )
                     break;
 
                 case DEF_CMD_SPI_CONTROL:
-                    /* 0xC1---SPI�ӿڿ������� */
-                    /* (1)��1���ֽ�Ƭѡ(CS1)���ſ��Ƽ��������ƣ�
-                       (2)��2���ֽ�Ƭѡ(CS1)���ŵ�ǰ������ʱʱ�䣬��λΪuS�����ֽ���ǰ��0x0000��ʾ��������ʱ��
-                       (3)��2���ֽ�Ƭѡ(CS1)���ź���������ʱʱ�䣬��λΪuS�����ֽ���ǰ��0x0000��ʾ��������ʱ��
-                       (4)��1���ֽ�Ƭѡ(CS2)���ſ��Ƽ��������ƣ�
-                       (5)��2���ֽ�Ƭѡ(CS2)���ŵ�ǰ������ʱʱ�䣬��λΪuS�����ֽ���ǰ��0x0000��ʾ��������ʱ��
-                       (6)��2���ֽ�Ƭѡ(CS2)���ź���������ʱʱ�䣬��λΪuS�����ֽ���ǰ��0x0000��ʾ��������ʱ��*/
+                    /* 0xC1---SPI接口控制命令 */
+                    /* (1)、1个字节片选(CS1)引脚控制及后续控制：
+                       (2)、2个字节片选(CS1)引脚当前控制延时时间，单位为uS，低字节在前；0x0000表示不进行延时；
+                       (3)、2个字节片选(CS1)引脚后续控制延时时间，单位为uS，低字节在前；0x0000表示不进行延时；
+                       (4)、1个字节片选(CS2)引脚控制及后续控制：
+                       (5)、2个字节片选(CS2)引脚当前控制延时时间，单位为uS，低字节在前；0x0000表示不进行延时；
+                       (6)、2个字节片选(CS2)引脚后续控制延时时间，单位为uS，低字节在前；0x0000表示不进行延时；*/
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = DEF_CMD_C1_INFOLEN;
 
-                    /* (1)��1���ֽ�Ƭѡ(CS1)���ſ��Ƽ��������� */
+                    /* (1)、1个字节片选(CS1)引脚控制及后续控制 */
                     if( *pTxbuf & 0x80 )
                     {
                         if( *pTxbuf & 0x40 )
@@ -441,7 +441,7 @@ UINT8 COMM_CMDPack_Deal( void )
                     }
                     pTxbuf++;
 
-                    /* (2)��2���ֽ�Ƭѡ(CS1)���ŵ�ǰ������ʱʱ�� */
+                    /* (2)、2个字节片选(CS1)引脚当前控制延时时间 */
                     temp16 = *pTxbuf++;
                     temp16 += ( ( (UINT16)*pTxbuf++ ) << 8 );
                     if( temp16 )
@@ -449,11 +449,11 @@ UINT8 COMM_CMDPack_Deal( void )
                         Delay_uS( temp16 );
                     }
 
-                    /* (3)��2���ֽ�Ƭѡ(CS1)���ź���������ʱʱ�� */
+                    /* (3)、2个字节片选(CS1)引脚后续控制延时时间 */
                     COMM.CS0_LaterOpDelay = *pTxbuf++;
                     COMM.CS0_LaterOpDelay += ( ( (UINT16)*pTxbuf++ ) << 8 );
 
-                    /* (4)��1���ֽ�Ƭѡ(CS2)���ſ��Ƽ��������� */
+                    /* (4)、1个字节片选(CS2)引脚控制及后续控制 */
                     if( *pTxbuf & 0x80 )
                     {
                         if( *pTxbuf & 0x40 )
@@ -472,7 +472,7 @@ UINT8 COMM_CMDPack_Deal( void )
                     }
                     pTxbuf++;
 
-                    /* (5)��2���ֽ�Ƭѡ(CS2)���ŵ�ǰ������ʱʱ�� */
+                    /* (5)、2个字节片选(CS2)引脚当前控制延时时间 */
                     temp16 = *pTxbuf++;
                     temp16 += ( ( (UINT16)*pTxbuf++ ) << 8 );
                     if( temp16 )
@@ -480,15 +480,15 @@ UINT8 COMM_CMDPack_Deal( void )
                         Delay_uS( temp16 );
                     }
 
-                    /* (6)��2���ֽ�Ƭѡ(CS2)���ź���������ʱʱ�� */
+                    /* (6)、2个字节片选(CS2)引脚后续控制延时时间 */
                     COMM.CS1_LaterOpDelay = *pTxbuf++;
                     COMM.CS1_LaterOpDelay += ( ( (UINT16)*pTxbuf++ ) << 8 );
 
-                    /* ע����������Ӧ�� */
+                    /* 注：该命令无应答 */
                     break;
 
                 case DEF_CMD_SPI_RD_WR:
-                    /* 0xC2---SPI�ӿڳ����ȡд���������� */
+                    /* 0xC2---SPI接口常规读取写入数据命令 */
                     count = pack_len;
                     if( count >= DEF_SPI_TXRX_LEN_MAX )
                     {
@@ -496,7 +496,7 @@ UINT8 COMM_CMDPack_Deal( void )
                     }
                     tx_len = count;
 
-                    /* ���Ź�ι�� */
+                    /* 看门狗喂狗 */
 #if( DEF_WWDG_FUN_EN == 0x01 )
                     WWDG_Tr = WWDG->CTLR & 0x7F;
                     if( WWDG_Tr < WWDG_Wr )
@@ -505,7 +505,7 @@ UINT8 COMM_CMDPack_Deal( void )
                     }
 #endif
 
-                    /* �������ݲ��ض����� */
+                    /* 发送数据并回读数据 */
                     recv_len = 3;
                     if( SPI_Cfg.SPI_DataSize == SPI_DataSize_8b )
                     {
@@ -543,7 +543,7 @@ UINT8 COMM_CMDPack_Deal( void )
                         }
                     }
 
-                    /* �ж��Ƿ���Ҫ�Զ�����Ƭѡ */
+                    /* 判断是否需要自动撤销片选 */
                     if( COMM.CS0_LaterOpStatus )
                     {
                         if( COMM.CS0_LaterOpDelay )
@@ -561,19 +561,19 @@ UINT8 COMM_CMDPack_Deal( void )
                         PIN_SPI_CS1_HIGH( );
                     }
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = tx_len;
 
-                    /* ���÷���Ӧ��� */
+                    /* 设置返回应答包 */
                     SPI_Com_Buf[ 0 ] = DEF_CMD_SPI_RD_WR;
                     SPI_Com_Buf[ 1 ] = (UINT8)( tx_len );
                     SPI_Com_Buf[ 2 ] = (UINT8)( tx_len >> 8 );
                     break;
 
                 case DEF_CMD_SPI_BLCK_RD:
-                    /* 0xC3---SPI�ӿ�������ȡ�������� */
+                    /* 0xC3---SPI接口批量读取数据命令 */
 
-                    /* ���㱾���շ����� */
+                    /* 计算本次收发长度 */
                     COMM.Rx_TotalLen = *pTxbuf++;
                     COMM.Rx_TotalLen += ( ( (UINT16)*pTxbuf++ ) << 8 );
                     COMM.Rx_TotalLen += ( ( (UINT16)*pTxbuf++ ) << 16 );
@@ -584,7 +584,7 @@ UINT8 COMM_CMDPack_Deal( void )
                         COMM.Tx_CurLen = DEF_SPI_TXRX_LEN_MAX;
                     }
 
-                    /* ����DMA���������ݷ��� */
+                    /* 配置DMA并进行数据发送 */
                     SPI_Com_Buf[ 0 ] = DEF_CMD_SPI_BLCK_RD;
                     SPI_Com_Buf[ 1 ] = (UINT8)COMM.Tx_CurLen;
                     SPI_Com_Buf[ 2 ] = (UINT8)( COMM.Tx_CurLen >> 8 );
@@ -592,17 +592,17 @@ UINT8 COMM_CMDPack_Deal( void )
 
                     COMM.Tx_Rx_Status = DEF_SPI_STATUS_RX;
 
-                    /* ���õ�ǰ���������(ִ�гɹ����ܽ��м���) */
+                    /* 设置当前命令包长度(执行成功才能进行计算) */
                     COMM.CMDP_Cur_CMDLen = 0x00;
 
-                    /* ��������while��־ */
+                    /* 设置跳出while标志 */
                     sp_flag = 0x01;
                     break;
 
                 case DEF_CMD_SPI_BLCK_WR:
-                    /* 0xC4---SPI�ӿ�����д���������� */
+                    /* 0xC4---SPI接口批量写入数据命令 */
 
-                    /* ���㱾���շ����� */
+                    /* 计算本次收发长度 */
                     COMM.Rx_TotalLen = pack_len;
                     COMM.Tx_CurLen = COMM.Rx_TotalLen;
                     if( COMM.Tx_CurLen >= DEF_SPI_TXRX_LEN_MAX )
@@ -610,7 +610,7 @@ UINT8 COMM_CMDPack_Deal( void )
                         COMM.Tx_CurLen = DEF_SPI_TXRX_LEN_MAX;
                     }
 
-                    /* ����DMA���������ݷ��� */
+                    /* 配置DMA并进行数据发送 */
                     SPI_Com_Buf[ 0 ] = DEF_CMD_SPI_BLCK_WR;
                     SPI_Com_Buf[ 1 ] = 0x01;
                     SPI_Com_Buf[ 2 ] = 0x00;
@@ -619,22 +619,22 @@ UINT8 COMM_CMDPack_Deal( void )
 
                     COMM.Tx_Rx_Status = DEF_SPI_STATUS_TX;
 
-                    /* ���õ�ǰ���������(ִ�гɹ����ܽ��м���) */
+                    /* 设置当前命令包长度(执行成功才能进行计算) */
                     COMM.CMDP_Cur_CMDLen = 0x00;
 
-                    /* ��������while��־ */
+                    /* 设置跳出while标志 */
                     sp_flag = 0x01;
                     break;
 
                 case DEF_CMD_INFO_RD:
-                     /* 0xCA---������ȡ���� */
-                     /* 0x00����ʾ��ȡоƬ�����Ϣ��
-                        0x01����ʾ��ȡSPI�ӿ������Ϣ��
-                        0x02����ʾ��ȡJTAG�ӿ������Ϣ�� */
+                     /* 0xCA---参数获取命令 */
+                     /* 0x00：表示获取芯片相关信息；
+                        0x01：表示获取SPI接口相关信息；
+                        0x02：表示获取JTAG接口相关信息； */
                      dat = *pTxbuf++;
                      if( dat == 0 )
                      {
-                         /* 0x00����ʾ��ȡоƬ�����Ϣ�� */
+                         /* 0x00：表示获取芯片相关信息； */
                          buf[ 0 ] = DEF_IC_PRG_VER;
                          buf[ 1 ] = 0x00;
                          buf[ 2 ] = 0;
@@ -643,7 +643,7 @@ UINT8 COMM_CMDPack_Deal( void )
                      }
                      else if( dat == 1 )
                      {
-                         /* 0x01����ʾ��ȡSPI�ӿڡ�IIC�ӿ������Ϣ */
+                         /* 0x01：表示获取SPI接口、IIC接口相关信息 */
                          memcpy( buf, &SPI_Cfg.SPI_Direction, 18 );
                          buf[ 18 ] = (UINT8)COMM.SPI_ByteDelay;
                          buf[ 19 ] = (UINT8)( COMM.SPI_ByteDelay >> 8 );
@@ -657,7 +657,7 @@ UINT8 COMM_CMDPack_Deal( void )
                      }
                      else if( dat == 2 )
                      {
-                         /* 0x02����ʾ��ȡJTAG�ӿ������Ϣ */
+                         /* 0x02：表示获取JTAG接口相关信息 */
                          buf[ 0 ] = JTAG_Mode;
                          buf[ 1 ] = JTAG_Speed;
                          buf[ 2 ] = 0x00;
@@ -671,30 +671,30 @@ UINT8 COMM_CMDPack_Deal( void )
                          count = 0x00;
                      }
 
-                     /* ���÷���Ӧ��� */
+                     /* 设置返回应答包 */
                      SPI_Com_Buf[ 0 ] = DEF_CMD_INFO_RD;
                      SPI_Com_Buf[ 1 ] = (UINT8)count;
                      SPI_Com_Buf[ 2 ] = 0x00;
                      memcpy( &SPI_Com_Buf[ 3 ], buf, (UINT8)count );
                      recv_len = count + 3;
 
-                     /* ���õ�ǰ��������� */
+                     /* 设置当前命令包长度 */
                      COMM.CMDP_Cur_CMDLen = 1;
                      break;
 
                 case DEF_CMD_JTAG_INIT:
-                    /* 0xD0---JTAG�ӿڳ�ʼ������ */
-                    /* (1)��1���ֽڣ�����ģʽ��
-                            0x00��bit-bangģʽ��
-                            0x01���Զ���Э��Ŀ���ģʽ��
-                        (2)��1���ֽڣ�ͨ���ٶȣ���ЧֵΪ0-5��ֵԽ��ͨ���ٶ�Խ�죻
-                        (3)��4���ֽڣ�������
+                    /* 0xD0---JTAG接口初始化命令 */
+                    /* (1)、1个字节：工作模式；
+                            0x00：bit-bang模式；
+                            0x01：自定义协议的快速模式；
+                        (2)、1个字节：通信速度；有效值为0-5，值越大通信速度越快；
+                        (3)、4个字节：保留；
                     */
                     JTAG_Mode = *pTxbuf++;
                     JTAG_Speed = *pTxbuf++;
                     JTAG_Port_Init( );
 
-                    /* ��ʼ��SPI�ӿ� */
+                    /* 初始化SPI接口 */
                     if( JTAG_Speed == 5 )
                     {
                         temp16 = SPI_BaudRatePrescaler_2;
@@ -725,15 +725,15 @@ UINT8 COMM_CMDPack_Deal( void )
                     }
                     JTAG_SPI_Init( temp16 );
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = 6;
 
-                    /* ���USB�ϴ���������ر��� */
+                    /* 清空USB上传缓冲区相关变量 */
                     COMM.Rx_LoadPtr = 0;
                     COMM.Rx_DealPtr = 0;
                     COMM.Rx_RemainLen = 0;
 
-                    /* ���÷���Ӧ��� */
+                    /* 设置返回应答包 */
                     Comm_Rx_Buf[ COMM.Rx_LoadPtr++ ] = DEF_CMD_JTAG_INIT;
                     Comm_Rx_Buf[ COMM.Rx_LoadPtr++ ] = 0x01;
                     Comm_Rx_Buf[ COMM.Rx_LoadPtr++ ] = 0x00;
@@ -742,13 +742,13 @@ UINT8 COMM_CMDPack_Deal( void )
                     break;
 
                 case DEF_CMD_JTAG_BIT_OP:
-                    /* 0xD1---JTAG�ӿ�����λ�������� */
+                    /* 0xD1---JTAG接口引脚位控制命令 */
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = pack_len;
                     count = pack_len;
 
-                    /* ִ������ */
+                    /* 执行命令 */
                     while( count-- )
                     {
                         JTAG_Port_BitShift( *pTxbuf++ );
@@ -756,27 +756,27 @@ UINT8 COMM_CMDPack_Deal( void )
                     break;
 
                 case DEF_CMD_JTAG_BIT_OP_RD:
-                    /* 0xD2---JTAG�ӿ�����λ���Ʋ���ȡ���� */
+                    /* 0xD2---JTAG接口引脚位控制并读取命令 */
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = pack_len;
                     count = pack_len;
 
-                    /* �ж��Ƿ�װ��Ӧ����İ�ͷ���� */
+                    /* 判断是否装载应答包的包头数据 */
                     if( CMDPack_Op_Len_Save == CMDPack_Op_Len )
                     {
                     	CMDPack_Op_Len_Save = 0x00;
                         COMM_Load_PackHead( DEF_CMD_JTAG_BIT_OP_RD, ( CMDPack_Op_Len / 2 ) );
                     }
 
-                    /* ִ������ */
+                    /* 执行命令 */
                     while( count-- )
                     {
-                        /* �������� */
+                        /* 发送数据 */
                     	dat = *pTxbuf++;
                     	JTAG_Port_BitShift( dat );
 
-                        /* ����ȡ����װ�õ����ջ����� */
+                        /* 将读取数据装置到接收缓冲区 */
                         if( dat & DEF_TCK_BIT_OUT )
                         {
                             Comm_Rx_Buf[ COMM.Rx_LoadPtr ] = JTAG_Port_BitRead( );
@@ -791,24 +791,24 @@ UINT8 COMM_CMDPack_Deal( void )
                     break;
 
                 case DEF_CMD_JTAG_DATA_SHIFT:
-                    /* 0xD3---JTAG�ӿ�������λ���� */
+                    /* 0xD3---JTAG接口数据移位命令 */
 
 #if( DEF_WWDG_FUN_EN == 0x01 )
-                    /* ��ʱ�ر�WWDG���Ź�ʱ�� */
+                    /* 临时关闭WWDG看门狗时钟 */
                     RCC_APB1PeriphClockCmd( RCC_APB1Periph_WWDG, DISABLE );
 #endif
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = pack_len;
                     count = pack_len;
 
-                    /* JTAG�ӿ�����ΪSPIģʽ */
+                    /* JTAG接口设置为SPI模式 */
                     JTAG_Port_SwTo_SPIMode( );
 
-                    /* ִ������ */
+                    /* 执行命令 */
                     if( count == DEF_HS_PACK_MAX_LEN )
                     {
-                        /* ����SPIģʽ�������� */
+                        /* 采用SPI模式发送数据 */
                         for( i = 0; i < 10; i++ )
                         {
                             SPI2->DATAR = *pTxbuf++;
@@ -940,43 +940,43 @@ UINT8 COMM_CMDPack_Deal( void )
                         }
                     }
 
-                    /* �ȴ�SPI�������  */
+                    /* 等待SPI传输结束  */
                     while( SPI2->STATR & SPI_I2S_FLAG_BSY );
 
-                    /* JTAG�ӿ�����ΪGPIOģʽ */
+                    /* JTAG接口设置为GPIO模式 */
                     JTAG_Port_SwTo_GPIOMode( );
 
 #if( DEF_WWDG_FUN_EN == 0x01 )
-                    /* ι�� */
+                    /* 喂狗 */
                     WWDG_Tr = WWDG->CTLR & 0x7F;
                     if( WWDG_Tr < WWDG_Wr )
                     {
                         WWDG->CTLR = WWDG_CNT;
                     }
 
-                    /* ���´�WWDG���Ź�ʱ�� */
+                    /* 重新打开WWDG看门狗时钟 */
                     RCC_APB1PeriphClockCmd( RCC_APB1Periph_WWDG, ENABLE );
 #endif
                     break;
 
                 case DEF_CMD_JTAG_DATA_SHIFT_RD:
-                    /* 0xD4---JTAG�ӿ�������λ����ȡ���� */
+                    /* 0xD4---JTAG接口数据移位并读取命令 */
 
-                    /* ���õ�ǰ��������� */
+                    /* 设置当前命令包长度 */
                     COMM.CMDP_Cur_CMDLen = pack_len;
                     count = pack_len;
 
-                    /* �ж��Ƿ�װ��Ӧ����İ�ͷ���� */
+                    /* 判断是否装载应答包的包头数据 */
                     if( CMDPack_Op_Len_Save == CMDPack_Op_Len )
                     {
                         CMDPack_Op_Len_Save = 0x00;
                         COMM_Load_PackHead( DEF_CMD_JTAG_DATA_SHIFT_RD, CMDPack_Op_Len );
                     }
 
-                    /* ִ������ */
+                    /* 执行命令 */
                     while( count-- )
                     {
-                        /* ����ȡ����װ�õ����ջ����� */
+                        /* 将读取数据装置到接收缓冲区 */
                         Comm_Rx_Buf[ COMM.Rx_LoadPtr ] = JTAG_Port_DataShift_RD( *pTxbuf++ );
                         COMM.Rx_LoadPtr++;
                         if( COMM.Rx_LoadPtr >= DEF_COMM_RX_BUF_LEN )
@@ -988,7 +988,7 @@ UINT8 COMM_CMDPack_Deal( void )
                     break;
 
                 default:
-                    /* ���õ�ǰ���������(һ����ִ�����) */
+                    /* 设置当前命令包长度(一次性执行完毕) */
                     pack_len = CMDPack_Op_Len;
                     COMM.CMDP_Cur_CMDLen = COMM.CMDP_Cur_RemainLen;
 
@@ -996,29 +996,29 @@ UINT8 COMM_CMDPack_Deal( void )
                     break;
             }
 
-            /* �л�����ִ��״̬ */
+            /* 切换命令执行状态 */
             CMDPack_Op_Len -= pack_len;
             if( CMDPack_Op_Len == 0 )
             {
                 CMDPack_Op_Status = 0x00;
             }
 
-            /* �ж��Ƿ���SPI����� */
+            /* 判断是否是SPI命令处理 */
             if( ( CMDPack_Op_Code < DEF_CMD_JTAG_INIT ) )
             {
-                /* �ж��Ƿ���Ҫ�ϴ����� */
+                /* 判断是否需要上传数据 */
                 if( recv_len )
                 {
                     USB_SPI_DataUp( SPI_Com_Buf, recv_len );
                 }
             }
 
-            /* ���㵱ǰ�����ʣ�೤�ȼ�ƫ�ƣ����ж��Ƿ���Ҫ�л������� */
+            /* 计算当前命令包剩余长度及偏移，并判断是否需要切换缓冲区 */
             COMM_CMDPack_Switch( 0x00 );
         }
     }
 
-    /* �ж��Ƿ���JTAG������Ҫ�ϴ�(ִ����������1�������������ϴ�) */
+    /* 判断是否有JTAG数据需要上传(执行完完整的1包才启动数据上传) */
     if( CMDPack_Op_Status == 0 )
     {
         COMM_RxData_Up_Deal( );
@@ -1028,7 +1028,7 @@ UINT8 COMM_CMDPack_Deal( void )
 
 /*******************************************************************************
 * Function Name  : COMM_RxData_Up_Deal
-* Description    : �ӿ�ͨ�Ž��������ϴ�����
+* Description    : 接口通信接收数据上传处理
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1039,10 +1039,10 @@ void COMM_RxData_Up_Deal( void )
     UINT16 send_len;
     UINT32 offset;
 
-    /* �ж�ǰһ�������Ƿ��ϴ���� */
+    /* 判断前一包数据是否上传完毕 */
     if( COMM.USB_Up_IngFlag )
     {
-        /* ��ʱ100mSδȡ��������ȡ�����������ϴ� */
+        /* 超时100mS未取走数据则取消本次数据上传 */
         if( COMM.USB_Up_TimeOut >= 1000 )
         {
             COMM.USB_Up_TimeOut = 0;
@@ -1051,19 +1051,19 @@ void COMM_RxData_Up_Deal( void )
         return;
     }
 
-    /* �ж��Ƿ���������Ҫͨ��USB�ӿڽ����ϴ� */
+    /* 判断是否有数据需要通过USB接口进行上传 */
     if( COMM.Rx_RemainLen == 0x00 )
     {
-        /* ��������Ҫ�ϴ���ֱ�ӷ��� */
+        /* 无数据需要上传则直接返回 */
         return;
     }
 
-    /* ������ݰ�����������ϴ��������ݣ�����ʱ�ϴ�ʣ������ */
+    /* 如果数据包已满则最多上传整包数据，否则超时上传剩余数据 */
     send_len = COMM.Rx_RemainLen;
     pack_len = 0x00;
     if( USBHS_Up_PackLenMax == DEF_USB_HS_PACK_LEN )
     {
-        /* ���㱾���ϴ����� */
+        /* 计算本次上传长度 */
         if( send_len >= DEF_USB_HS_PACK_LEN )
         {
             pack_len = DEF_USB_HS_PACK_LEN;
@@ -1079,7 +1079,7 @@ void COMM_RxData_Up_Deal( void )
     }
     else
     {
-        /* ���㱾���ϴ����� */
+        /* 计算本次上传长度 */
         if( send_len >= DEF_USB_FS_PACK_LEN )
         {
             pack_len = DEF_USB_FS_PACK_LEN;
@@ -1094,7 +1094,7 @@ void COMM_RxData_Up_Deal( void )
         }
     }
 
-    /* �жϵ��ﻺ����Ĭ���Ƿ��㹻 */
+    /* 判断到达缓冲区默认是否足够 */
     offset = DEF_COMM_RX_BUF_LEN - COMM.Rx_DealPtr;
     if( pack_len > offset )
     {
@@ -1103,12 +1103,12 @@ void COMM_RxData_Up_Deal( void )
 
 //   DUG_PRINTF("Up:%x\n",pack_len);
 
-    /* �����������Ҫ�ϴ��������������ϴ� */
+    /* 如果有数据需要上传，则启动数据上传 */
     if( pack_len )
     {
         memcpy( &EP1_Tx_Databuf[ 0 ], &Comm_Rx_Buf[ COMM.Rx_DealPtr ], pack_len );
 
-        /* ����DMA��ַ�������ϴ� */
+        /* 设置DMA地址并启动上传 */
         COMM.USB_Up_PackLen = pack_len;
         COMM.USB_Up_IngFlag = 0x01;
         COMM.USB_Up_TimeOut = 0x00;
@@ -1121,7 +1121,7 @@ void COMM_RxData_Up_Deal( void )
 
 /*******************************************************************************
 * Function Name  : JTAG_Mode1_Deal
-* Description    : JTAGģʽ1����
+* Description    : JTAG模式1处理
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1134,17 +1134,17 @@ void JTAG_Mode1_Deal( void )
     UINT16 i;
 
     /**********************************************************************/
-    /* �ж��Ƿ���������Ҫͨ��JTAG�ӿڽ��з��� */
+    /* 判断是否有数据需要通过JTAG接口进行发送 */
     if( COMM.CMDP_RemainNum )
     {
-        /* �ж��Ǵ��ϴ�δ������ϵĻ�����װ�ػ��Ǵ��»�������װ�� */
+        /* 判断是从上次未发送完毕的缓冲区装载还是从新缓冲区中装载 */
         if( COMM.CMDP_Cur_RemainLen == 0x00 )
         {
             COMM.CMDP_Cur_RemainLen = COMM.CMDP_PackLen[ COMM.CMDP_DealNum ];
             COMM.CMDP_Cur_DealPtr = ( COMM.CMDP_DealNum * DEF_USB_HS_PACK_LEN );
         }
 
-        /* �ӻ�������ȡ�����ݷ������� */
+        /* 从缓冲区中取出数据分析处理 */
         FLAG_Send = 1;
         pbuf = &Comm_Tx_Buf[ COMM.CMDP_Cur_DealPtr ];
         while( COMM.CMDP_Cur_RemainLen && ( COMM.Rx_RemainLen < 62 ) )
@@ -1162,7 +1162,7 @@ void JTAG_Mode1_Deal( void )
                 {
                     JTAG_Port_BitShift( dat );
 
-                    /* ����ȡ����װ�õ����ջ����� */
+                    /* 将读取数据装置到接收缓冲区 */
                     Comm_Rx_Buf[ COMM.Rx_LoadPtr ] = JTAG_Port_BitRead( );
                     COMM.Rx_LoadPtr++;
                     if( COMM.Rx_LoadPtr >= DEF_COMM_RX_BUF_LEN )
@@ -1182,7 +1182,7 @@ void JTAG_Mode1_Deal( void )
                 {
                     dat = JTAG_Port_DataShift_RD( dat );
 
-                    /* ����ȡ����װ�õ����ջ����� */
+                    /* 将读取数据装置到接收缓冲区 */
                     Comm_Rx_Buf[ COMM.Rx_LoadPtr ] = dat;
                     COMM.Rx_LoadPtr++;
                     if( COMM.Rx_LoadPtr >= DEF_COMM_RX_BUF_LEN )
@@ -1201,11 +1201,11 @@ void JTAG_Mode1_Deal( void )
             COMM.CMDP_Cur_RemainLen--;
         }
 
-        /* �ر�USB�ж� */
+        /* 关闭USB中断 */
         NVIC_DisableIRQ( USBHS_IRQn );
         NVIC_DisableIRQ( USBHS_IRQn );
 
-        /* ������ر��� */
+        /* 计算相关变量 */
         if( COMM.CMDP_Cur_RemainLen == 0x00 )
         {
             COMM.CMDP_PackLen[ COMM.CMDP_DealNum ] = 0x0000;
@@ -1217,7 +1217,7 @@ void JTAG_Mode1_Deal( void )
             COMM.CMDP_RemainNum--;
         }
 
-        /* �����ǰ��������ͣ�´������������´� */
+        /* 如果当前串口已暂停下传则重启驱动下传 */
         if( ( COMM.USB_Down_StopFlag == 0x01 ) &&
             ( COMM.CMDP_RemainNum < ( DEF_COMM_BUF_PACKNUM_MAX - 2 ) ) )
         {
@@ -1226,12 +1226,12 @@ void JTAG_Mode1_Deal( void )
             COMM.USB_Down_StopFlag = 0x00;
         }
 
-        /* ���´�USB�ж� */
+        /* 重新打开USB中断 */
         NVIC_EnableIRQ( USBHS_IRQn );
     }
 
     /**********************************************************************/
-    /* �ж��Ƿ���������Ҫͨ��USB�ӿڽ����ϴ� */
+    /* 判断是否有数据需要通过USB接口进行上传 */
     if( !FLAG_Send )
     {
         return;
@@ -1279,12 +1279,12 @@ void JTAG_Mode1_Deal( void )
         USBHSD->UEP1_TX_CTRL |= USBHS_EP_T_RES_ACK;
     }
 
-    /* �ȴ��˵�1�ϴ��������  */
+    /* 等待端点1上传数据完成  */
     for(  i = 0; i < 100; i++ )
     {
         if( ( USBHSD->UEP1_TX_CTRL & USBHS_EP_T_RES_NAK ) == USBHS_EP_T_RES_NAK )
         {
-            /* �˵�1�ϴ����,���жϳ��� */
+            /* 端点1上传完成,从中断出来 */
             break;
         }
         Delay_Us( 1 );
@@ -1294,7 +1294,7 @@ void JTAG_Mode1_Deal( void )
 
 /*******************************************************************************
 * Function Name  : SPIx_Cfg_DefInit
-* Description    : SPIx�ӿ�����Ĭ�ϳ�ʼ��
+* Description    : SPIx接口配置默认初始化
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1317,7 +1317,7 @@ void SPIx_Cfg_DefInit( void )
 
 /*******************************************************************************
 * Function Name  : SPIx_Port_Init
-* Description    : SPIx�ӿڳ�ʼ��
+* Description    : SPIx接口初始化
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1327,16 +1327,16 @@ void SPIx_Port_Init( void )
     GPIO_InitTypeDef GPIO_InitStructure={0};
     SPI_InitTypeDef  SPI_InitStructure={0};
 
-    /* ��SPIxʱ�� */
+    /* 打开SPIx时钟 */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE );
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_SPI2, ENABLE );
 
-    /* ��λSPI,�Ա����SPI_I2S_FLAG_RXNEλ */
+    /* 复位SPI,以便清除SPI_I2S_FLAG_RXNE位 */
     RCC_APB1PeriphResetCmd( RCC_APB1Periph_SPI2 | RCC_APB1Periph_SPI3, ENABLE );
     RCC_APB1PeriphResetCmd( RCC_APB1Periph_SPI2 | RCC_APB1Periph_SPI3, DISABLE );
     SPI2->HSCR |= ( 1 << 0 );
 
-    /* ����������� */
+    /* 配置相关引脚 */
     GPIO_SetBits( GPIOB, GPIO_Pin_12 );
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -1360,7 +1360,7 @@ void SPIx_Port_Init( void )
 
     SPI_SSOutputCmd( SPI2, ENABLE );
 
-    /* ����SPIx */
+    /* 配置SPIx */
     SPI_InitStructure.SPI_Direction = SPI_Cfg.SPI_Direction;
     SPI_InitStructure.SPI_Mode = SPI_Cfg.SPI_Mode;
     SPI_InitStructure.SPI_DataSize = SPI_Cfg.SPI_DataSize;
@@ -1372,19 +1372,19 @@ void SPIx_Port_Init( void )
     SPI_InitStructure.SPI_CRCPolynomial = SPI_Cfg.SPI_CRCPolynomial;
     SPI_Init( SPI2, &SPI_InitStructure );
 
-    /* �ж��Ƿ���ձ�־Ϊ1,��������ȡ���ݼĴ�����0(CH32V307��S[I2\SPI3,��λĬ��ֵΪ1) */
+    /* 判断是否接收标志为1,如果是则读取数据寄存器清0(CH32V307的S[I2\SPI3,该位默认值为1) */
     if( SPI_I2S_GetFlagStatus( SPI2, SPI_I2S_FLAG_RXNE ) == SET )
     {
         SPI2->DATAR;
     }
 
-    /* ʹ��SPIx */
+    /* 使能SPIx */
     SPI_Cmd( SPI2, ENABLE );
 }
 
 /*******************************************************************************
 * Function Name  : SPIx_Tx_DMA_Init
-* Description    : SPIx�ӿڷ���DMA��ʼ��
+* Description    : SPIx接口发送DMA初始化
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1413,7 +1413,7 @@ void SPIx_Tx_DMA_Init( DMA_Channel_TypeDef* DMA_CHx, UINT32 ppadr, UINT32 memadr
 
 /*******************************************************************************
 * Function Name  : SPIx_Rx_DMA_Init
-* Description    : SPIx�ӿڽ���DMA��ʼ��
+* Description    : SPIx接口接收DMA初始化
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1442,7 +1442,7 @@ void SPIx_Rx_DMA_Init( DMA_Channel_TypeDef* DMA_CHx, UINT32 ppadr, UINT32 memadr
 
 /*******************************************************************************
 * Function Name  : SPIx_RD_WR_Byte
-* Description    : SPIx���Ͳ���д1���ֽ�
+* Description    : SPIx发送并读写1个字节
 * Input          : None
 * Output         : None
 * Return         : None
@@ -1479,14 +1479,14 @@ UINT8 SPIx_RD_WR_Byte( UINT8 dat )
 
 /*******************************************************************************
 * Function Name  : SPIx_TxRx_DMA_Init
-* Description    : SPIx���ͽ�������DMA��ʼ��
+* Description    : SPIx发送接收数据DMA初始化
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void SPIx_TxRx_DMA_Init( UINT8 *pTxBuf, UINT16 Txlen, UINT8 *pRxBuf, UINT16 Rxlen )
 {
-    /* ����DMA�����з��ͺͽ��� */
+    /* 配置DMA并进行发送和接收 */
     SPI_Cmd( SPI2, DISABLE );
 
     SPI2->CTLR2 &= ~SPI_I2S_DMAReq_Tx;
@@ -1512,19 +1512,19 @@ void SPIx_TxRx_DMA_Init( UINT8 *pTxBuf, UINT16 Txlen, UINT8 *pRxBuf, UINT16 Rxle
 
 /*******************************************************************************
 * Function Name  : SPIx_Tx_DMA_Deal
-* Description    : SPIx��������DMA����
-*                                                 �����е��η��ͣ���ѯ�Ƿ�����ɣ�����������ϴ�ִ��״̬��
+* Description    : SPIx发送数据DMA处理
+*                                                 仅进行单次发送，查询是否发送完成，发送完成则上传执行状态包
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void SPIx_Tx_DMA_Deal( void )
 {
-    /* ��ѯSPI��DMA�����Ƿ���� */
+    /* 查询SPI的DMA发送是否完成 */
     if( ( ( DMA1->INTFR & DMA1_FLAG_TC4 ) && ( DMA1->INTFR & DMA1_FLAG_TC5 ) ) ||
         ( COMM.Tx_TimeOut >= COMM.Tx_TimeOutMax ) )
     {
-        /* ���־���ر�DMA */
+        /* 清标志并关闭DMA */
         SPI2->STATR &= ~SPI_I2S_FLAG_TXE;
         SPI2->STATR &= ~SPI_I2S_FLAG_RXNE;
 
@@ -1533,14 +1533,14 @@ void SPIx_Tx_DMA_Deal( void )
         DMA1_Channel5->CFGR &= (uint16_t)(~DMA_CFGR1_EN);
         DMA1_Channel4->CFGR &= (uint16_t)(~DMA_CFGR1_EN);
 
-        /* ���㵱ǰ�����ʣ�೤�ȼ�ƫ�ƣ����ж��Ƿ���Ҫ�л������� */
+        /* 计算当前命令包剩余长度及偏移，并判断是否需要切换缓冲区 */
         COMM.CMDP_Cur_CMDLen = ( COMM.Tx_CurLen + 4 );
         COMM_CMDPack_Switch( 0x00 );
 
-        /* �л�SPI�շ�״̬ */
+        /* 切换SPI收发状态 */
         COMM.Tx_Rx_Status = DEF_SPI_STATUS_IDLE;
 
-        /* USB�ϴ�ִ��״̬ */
+        /* USB上传执行状态 */
         if( COMM.Tx_TimeOut >= COMM.Tx_TimeOutMax )
         {
             SPI_Com_Buf[ 3 ] = 0x01;
@@ -1551,20 +1551,20 @@ void SPIx_Tx_DMA_Deal( void )
 
 /*******************************************************************************
 * Function Name  : SPIx_Rx_DMA_Deal
-* Description    : SPIx��������DMA����
-*                  �������ͣ���ѯ�����Ƿ�����ɣ����η���������ϴ��������ݣ��ж��Ƿ���Ҫ���գ�
-*                  �����Ҫ������������ͣ����������������
+* Description    : SPIx接收数据DMA处理
+*                  启动发送，查询本次是否发送完成，本次发送完成则上传接收数据，判断是否还需要接收，
+*                  如果需要则继续启动发送，否则完成整个接收
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void SPIx_Rx_DMA_Deal( void )
 {
-    /* ��ѯSPI��DMA�����Ƿ���� */
+    /* 查询SPI的DMA发送是否完成 */
     if( ( ( DMA1->INTFR & DMA1_FLAG_TC4 ) && ( DMA1->INTFR & DMA1_FLAG_TC5 ) ) ||
         ( COMM.Tx_TimeOut >= COMM.Tx_TimeOutMax ) )
     {
-        /* ���־���ر�DMA */
+        /* 清标志并关闭DMA */
         SPI2->STATR &= ~SPI_I2S_FLAG_TXE;
         SPI2->STATR &= ~SPI_I2S_FLAG_RXNE;
 
@@ -1573,40 +1573,40 @@ void SPIx_Rx_DMA_Deal( void )
         DMA1_Channel5->CFGR &= (uint16_t)(~DMA_CFGR1_EN);
         DMA1_Channel4->CFGR &= (uint16_t)(~DMA_CFGR1_EN);
 
-        /* ����USB�ϴ��������� */
+        /* 启动USB上传接收数据 */
         USB_SPI_DataUp( SPI_Com_Buf, ( COMM.Tx_CurLen + 3 ) );
 
-        /* �����Ƿ���ʣ������δ��ȡ */
+        /* 计算是否还有剩余数据未读取 */
         COMM.Rx_TotalLen -= COMM.Tx_CurLen;
         if( COMM.Rx_TotalLen == 0x00 )
         {
-            /* ȫ�����ݽ������ */
+            /* 全部数据接收完毕 */
 
-            /* ���㵱ǰ�����ʣ�೤�ȼ�ƫ�ƣ����ж��Ƿ���Ҫ�л������� */
+            /* 计算当前命令包剩余长度及偏移，并判断是否需要切换缓冲区 */
             COMM.CMDP_Cur_CMDLen = DEF_CMD_C3_INFOLEN;
             COMM_CMDPack_Switch( 0x00 );
 
-            /* �л�SPI�շ�״̬ */
+            /* 切换SPI收发状态 */
             COMM.Tx_Rx_Status = DEF_SPI_STATUS_IDLE;
         }
         else
         {
-            /* ��������DMA���Ͳ��������� */
+            /* 继续启动DMA发送并接收数据 */
 
-            /* ���㱾���շ����� */
+            /* 计算本次收发长度 */
             COMM.Tx_CurLen = COMM.Rx_TotalLen;
             if( COMM.Tx_CurLen >= DEF_SPI_TXRX_LEN_MAX )
             {
                 COMM.Tx_CurLen = DEF_SPI_TXRX_LEN_MAX;
             }
 
-            /* ����DMA���������ݷ��� */
+            /* 配置DMA并进行数据发送 */
             SPI_Com_Buf[ 0 ] = DEF_CMD_SPI_BLCK_RD;
             SPI_Com_Buf[ 1 ] = (UINT8)COMM.Tx_CurLen;
             SPI_Com_Buf[ 2 ] = (UINT8)( COMM.Tx_CurLen >> 8 );
             SPIx_TxRx_DMA_Init( SPI_TxDMA_Buf, COMM.Tx_CurLen, &SPI_Com_Buf[ 3 ], COMM.Tx_CurLen );
 
-            /* ���õ�ǰ���������(ִ�гɹ����ܽ��м���) */
+            /* 设置当前命令包长度(执行成功才能进行计算) */
             COMM.CMDP_Cur_CMDLen = 0x00;
         }
     }
@@ -1614,14 +1614,14 @@ void SPIx_Rx_DMA_Deal( void )
 
 /*******************************************************************************
 * Function Name  : USB_SPI_DataUp
-* Description    : USBתSPI�����ϴ�
+* Description    : USB转SPI数据上传
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void USB_SPI_DataUp( UINT8 *pbuf, UINT16 len )
 {
-    /* �ж�ǰһ�������Ƿ�����ȡ��,���δ����ȡ����ʱ�ȴ� */
+    /* 判断前一次数据是否正常取走,如果未正常取走则超时等待 */
     while( COMM.USB_Up_IngFlag )
     {
         if( COMM.USB_Up_TimeOut >= COMM.USB_Up_TimeOutMax )
@@ -1631,7 +1631,7 @@ void USB_SPI_DataUp( UINT8 *pbuf, UINT16 len )
         }
         else
         {
-            /* ���Ź�ι�� */
+            /* 看门狗喂狗 */
 #if( DEF_WWDG_FUN_EN == 0x01 )
             WWDG_Tr = WWDG->CTLR & 0x7F;
             if( WWDG_Tr < WWDG_Wr )
@@ -1642,14 +1642,14 @@ void USB_SPI_DataUp( UINT8 *pbuf, UINT16 len )
         }
     }
 
-    /* �ر�USB�ж� */
+    /* 关闭USB中断 */
     NVIC_DisableIRQ( USBHS_IRQn );
     NVIC_DisableIRQ( USBHS_IRQn );
     NVIC_DisableIRQ( USBHS_IRQn );
 
 //  DUG_PRINTF("SPI_UP:%x\n",len);
 
-    /* ����DMA��ַ�������ϴ� */
+    /* 设置DMA地址并启动上传 */
     COMM.USB_Up_IngFlag = 0x01;
     COMM.USB_Up_TimeOut = 0x00;
     USBHSD->UEP1_TX_DMA = (UINT32)(UINT8 *)pbuf;
@@ -1657,10 +1657,10 @@ void USB_SPI_DataUp( UINT8 *pbuf, UINT16 len )
     USBHSD->UEP1_TX_CTRL &= ~USBHS_EP_T_RES_MASK;
     USBHSD->UEP1_TX_CTRL |= USBHS_EP_T_RES_ACK;
 
-    /* ���´�USB�ж� */
+    /* 重新打开USB中断 */
     NVIC_EnableIRQ( USBHS_IRQn );
 
-    /* �ж�ǰһ�������Ƿ�����ȡ��,���δ����ȡ����ʱ�ȴ� */
+    /* 判断前一次数据是否正常取走,如果未正常取走则超时等待 */
     while( COMM.USB_Up_IngFlag )
     {
         if( COMM.USB_Up_TimeOut >= COMM.USB_Up_TimeOutMax )
@@ -1670,7 +1670,7 @@ void USB_SPI_DataUp( UINT8 *pbuf, UINT16 len )
         }
         else
         {
-            /* ���Ź�ι�� */
+            /* 看门狗喂狗 */
 #if( DEF_WWDG_FUN_EN == 0x01 )
             WWDG_Tr = WWDG->CTLR & 0x7F;
             if( WWDG_Tr < WWDG_Wr )
@@ -1685,15 +1685,15 @@ void USB_SPI_DataUp( UINT8 *pbuf, UINT16 len )
 
 /*******************************************************************************
 * Function Name  : SPIx_ReadID_Test
-* Description    : SPIx��ȡFLASHоƬID����
+* Description    : SPIx读取FLASH芯片ID测试
 * Input          : None
 * Output         : None
-* Return         : ����4���ֽ�,����ֽ�Ϊ0x00,
-*                  �θ��ֽ�ΪManufacturer ID(0xEF),
-*                  �ε��ֽ�ΪMemory Type ID
-*                  ����ֽ�ΪCapacity ID
-*                  W25X40BL����: 0xEF��0x30��0x13
-*                  W25X10BL����: 0xEF��0x30��0x11
+* Return         : 返回4个字节,最高字节为0x00,
+*                  次高字节为Manufacturer ID(0xEF),
+*                  次低字节为Memory Type ID
+*                  最低字节为Capacity ID
+*                  W25X40BL返回: 0xEF、0x30、0x13
+*                  W25X10BL返回: 0xEF、0x30、0x11
 *******************************************************************************/
 void SPIx_ReadID_Test( void )
 {
@@ -1703,7 +1703,7 @@ void SPIx_ReadID_Test( void )
    PIN_SPI_CS0_LOW( );
 
     /* Send "RDID " instruction */
-   SPIx_RD_WR_Byte( 0x9F );                                                     /* ���Ͷ�ȡJEDEC_ID���� */
+   SPIx_RD_WR_Byte( 0x9F );                                                     /* 发送读取JEDEC_ID命令 */
 
     /* Read a byte from the FLASH */
     dat = ( UINT32 )SPIx_RD_WR_Byte( 0xFF ) << 16;

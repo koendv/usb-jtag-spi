@@ -3,7 +3,7 @@
 * Author             : WCH
 * Version            : V1.00
 * Date               : 2022/04/14
-* Description        : Ó²¼şÏà¹Ø²¿·Ö³ÌĞò
+* Description        : ç¡¬ä»¶ç›¸å…³éƒ¨åˆ†ç¨‹åº
 * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
@@ -11,18 +11,18 @@
 
 
 /******************************************************************************/
-/* Í·ÎÄ¼ş°üº¬ */
-#include <MAIN.h>																/* Í·ÎÄ¼ş°üº¬ */
+/* å¤´æ–‡ä»¶åŒ…å« */
+#include <MAIN.h>																/* å¤´æ–‡ä»¶åŒ…å« */
 
 /******************************************************************************/
-/* ³£¡¢±äÁ¿¶¨Òå */
-volatile UINT16 TIM2_100mS_Count = 0x00;										/* ¶¨Ê±Æ÷2 100mS¶¨Ê±¼ÆÊı */
-volatile UINT8  TIM2_1S_Count = 0x00;											/* ¶¨Ê±Æ÷2 1S¶¨Ê±¼ÆÊı */
+/* å¸¸ã€å˜é‡å®šä¹‰ */
+volatile UINT16 TIM2_100mS_Count = 0x00;										/* å®šæ—¶å™¨2 100mSå®šæ—¶è®¡æ•° */
+volatile UINT8  TIM2_1S_Count = 0x00;											/* å®šæ—¶å™¨2 1Så®šæ—¶è®¡æ•° */
 
 /*******************************************************************************
 * Function Name  : Delay_uS
-* Description    : Î¢Ãë¼¶ÑÓÊ±º¯Êı
-* Input          : delay---ÑÓÊ±Öµ
+* Description    : å¾®ç§’çº§å»¶æ—¶å‡½æ•°
+* Input          : delay---å»¶æ—¶å€¼
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -32,7 +32,7 @@ void Delay_uS( UINT16 delay )
 
 	for( i = delay; i != 0; i -- ) 
 	{
-        /* ¿´ÃÅ¹·Î¹¹· */
+        /* çœ‹é—¨ç‹—å–‚ç‹— */
 #if( DEF_WWDG_FUN_EN == 0x01 )
         WWDG_Tr = WWDG->CTLR & 0x7F;
         if( WWDG_Tr < WWDG_Wr )
@@ -54,8 +54,8 @@ void Delay_uS( UINT16 delay )
 
 /*******************************************************************************
 * Function Name  : Delay_mS
-* Description    : ºÁÃë¼¶ÑÓÊ±º¯Êı
-* Input          : delay---ÑÓÊ±Öµ
+* Description    : æ¯«ç§’çº§å»¶æ—¶å‡½æ•°
+* Input          : delay---å»¶æ—¶å€¼
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -65,7 +65,7 @@ void Delay_mS( UINT16 delay )
 
 	for( i = delay; i != 0; i -- ) 
 	{
-	    /* ¿´ÃÅ¹·Î¹¹· */
+	    /* çœ‹é—¨ç‹—å–‚ç‹— */
 #if( DEF_WWDG_FUN_EN == 0x01 )
 	    WWDG_Tr = WWDG->CTLR & 0x7F;
 	    if( WWDG_Tr < WWDG_Wr )
@@ -82,7 +82,7 @@ void Delay_mS( UINT16 delay )
 }
 
 /*******************************************************************************
-* Function Name  : Ê±ÖÓÅäÖÃ
+* Function Name  : æ—¶é’Ÿé…ç½®
 * Description    : Configures the different system clocks.
 * Input          : None
 * Output         : None
@@ -97,11 +97,11 @@ UINT8 RCC_Configuration( void )
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
 
 	/* TIM2 clock enable */
-	RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2, ENABLE );						/* Ê¹ÄÜTIM2 */
+	RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2, ENABLE );						/* ä½¿èƒ½TIM2 */
 
 	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_DMA1, ENABLE );
 
-    /* ÓÉÓÚÆäÖĞµÄPB3¡¢PB4¶ÔÓ¦Óëµ¥Æ¬»úµÄJTAG¹¦ÄÜ,ËùÒÔ±ØĞëÏÈ½ûÓÃJTAG¹¦ÄÜ */
+    /* ç”±äºå…¶ä¸­çš„PB3ã€PB4å¯¹åº”ä¸å•ç‰‡æœºçš„JTAGåŠŸèƒ½,æ‰€ä»¥å¿…é¡»å…ˆç¦ç”¨JTAGåŠŸèƒ½ */
 #if( DEF_DEBUG_FUN_EN == 1 )
     GPIO_PinRemapConfig( GPIO_Remap_SWJ_Disable, ENABLE );
 #endif
@@ -109,7 +109,7 @@ UINT8 RCC_Configuration( void )
 }
 
 /*******************************************************************************
-* Function Name  : ÖĞ¶ÏÅäÖÃ
+* Function Name  : ä¸­æ–­é…ç½®
 * Description    : Configure the nested vectored interrupt controller.
 * Input          : None
 * Output         : None
@@ -126,7 +126,7 @@ void NVIC_Configuration( void )
 	/* VECT_TAB_FLASH  */
   	/* Set the Vector Table base location at 0x08000000 */
 
-	/* ÅĞ¶ÏÊÇ·ñÊ¹ÄÜIAP¹¦ÄÜ */
+	/* åˆ¤æ–­æ˜¯å¦ä½¿èƒ½IAPåŠŸèƒ½ */
 #if( DEF_IAP_EN == 1 )
 //	NVIC_SetVectorTable( NVIC_VectTab_FLASH, DEF_USER_PROG_ADDR - DEF_IAP_PROG_ADDR );
 #else
@@ -140,7 +140,7 @@ void NVIC_Configuration( void )
 
 	/* Enable the TIM2 gloabal Interrupt */
 	TIM_ClearFlag( TIM2, TIM_FLAG_Update );
-	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;		  						/* TIM2ÖĞ¶ÏµÄ¿ªÆô */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;		  						/* TIM2ä¸­æ–­çš„å¼€å¯ */
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -149,8 +149,8 @@ void NVIC_Configuration( void )
 
 /*******************************************************************************
 * Function Name  : TIM2_Init
-* Description    : TIM2³õÊ¼»¯
-				   TIM2¶¨Ê±Æ÷Ö÷ÒªÓÃÓÚ¶¨Ê±100us
+* Description    : TIM2åˆå§‹åŒ–
+				   TIM2å®šæ—¶å™¨ä¸»è¦ç”¨äºå®šæ—¶100us
 				   144 * 100 * 13.8888 -----> 100uS
 * Input          : None.
 * Output         : None.
@@ -169,16 +169,16 @@ void TIM2_Init( void )
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit( TIM2, &TIM_TimeBaseStructure );
 
-	/* Clear TIM2 update pending flag[Çå³ıTIM2Òç³öÖĞ¶Ï±êÖ¾] */
+	/* Clear TIM2 update pending flag[æ¸…é™¤TIM2æº¢å‡ºä¸­æ–­æ ‡å¿—] */
 	TIM_ClearFlag( TIM2, TIM_FLAG_Update );
 
 	/* Prescaler configuration */
-//	TIM_PrescalerConfig( TIM2, 4, TIM_PSCReloadMode_Immediate );	 			/* Èç¹ûÊ¹ÄÜµÄ»°,Ò»¿ªÊ¼¾Í»áÏÈ½øÈëÖĞ¶Ï·şÎñ³ÌĞò */
+//	TIM_PrescalerConfig( TIM2, 4, TIM_PSCReloadMode_Immediate );	 			/* å¦‚æœä½¿èƒ½çš„è¯,ä¸€å¼€å§‹å°±ä¼šå…ˆè¿›å…¥ä¸­æ–­æœåŠ¡ç¨‹åº */
 
 	/* TIM IT enable */
 	TIM_ITConfig( TIM2, TIM_IT_Update, ENABLE );
 
-    /* TIM2 enable counter [ÔÊĞítim2¼ÆÊı]*/
+    /* TIM2 enable counter [å…è®¸tim2è®¡æ•°]*/
 	TIM_Cmd( TIM2, ENABLE );
 }
 
