@@ -240,7 +240,7 @@ UINT8 COMM_CMDPack_Deal( void )
     UINT8  op_flag;
     UINT8  sp_flag;
     UINT16 tx_len;
-    UINT16 recv_len;
+    UINT16 recv_len = 0;
     UINT8  buf[ 32 ];
 
     /* 如果有SPI接口数据正在发送，则查询执行状态 */
